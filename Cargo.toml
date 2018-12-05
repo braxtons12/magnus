@@ -4,3 +4,6 @@ version = "0.1.0"
 authors = ["Braxton Salyer <braxtonsalyer@gmail.com"]
 
 [dependencies]
+log = "0.4"
+fern = { version = "0.5", features = ["colored"] }
+chrono = "0.4"

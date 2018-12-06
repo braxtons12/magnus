@@ -1,5 +1,7 @@
-pub use log::trace;
-pub use log::debug;
-pub use log::info;
-pub use log::warn;
-pub use log::error;
+#![macro_use]
+#[macro_export]
+macro_rules! BIT {
+    ($x:expr) => {
+        1 << $x
+    }
+}

@@ -2,6 +2,10 @@ pub mod application;
 pub mod core_macros;
 pub mod entry_point;
 
+/**
+ * Logger initialization function for debug builds
+ * Sets logger to use different colors for different levels, logs everything
+ **/
 #[cfg(debug_assertions)]
 pub fn setup_logger() ->Result<(), fern::InitError> {
 
@@ -33,6 +37,11 @@ pub fn setup_logger() ->Result<(), fern::InitError> {
     Ok(())
 }
 
+/**
+ * Logger initialization function for release builds
+ * Sets logger to use different colors for different levels, logs only warn, error
+ * Logs only to the log file, not stderr
+ **/
 #[cfg(not(debug_assertions))]
 pub fn setup_logger() ->Result<(), fern::InitError> {
 
@@ -58,7 +67,6 @@ pub fn setup_logger() ->Result<(), fern::InitError> {
                     ));
         })
     .level(log::LevelFilter::Warn)
-        .chain(std::io::stderr())
         .chain(fern::log_file("magnus_log.log")?)
         .apply()?;
     Ok(())

@@ -1,6 +1,6 @@
 
-use core;
-use core::application;
+use crate::core;
+use crate::core::application;
 
 use std::boxed::Box;
 

@@ -1,12 +1,10 @@
 
 use crate::core;
-use crate::core::application;
-
-use std::boxed::Box;
+use crate::core::application::MagnusApplication;
 
 #[no_mangle]
 extern "Rust" {
-    pub fn create_application() -> Box<application::Application>;
+    pub fn create_application() -> MagnusApplication;
 }
 
 #[no_mangle]

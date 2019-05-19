@@ -71,3 +71,11 @@ pub fn setup_logger() ->Result<(), fern::InitError> {
         .apply()?;
     Ok(())
 }
+
+pub fn initialize_core() {
+
+}
+
+pub fn shutdown_core() {
+
+}

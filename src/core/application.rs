@@ -5,23 +5,20 @@
  * pub fn create_application() -> impl Box<Application>;
  *
  **/
-
+use crate::events::event::*;
 use crate::events::event::Event;
 use crate::events::event::EventDispatcher;
-use crate::events::application_event::WindowResizeEvent;
-use crate::events::application_event::WindowClosedEvent;
 
+#[repr(C)]
 pub struct MagnusApplication {
     name:   String,
-    running: bool,
-    window: core::window::Window,
-    layer_stack: core::layer::LayerStack,
+    running: bool
 }
 
 impl MagnusApplication {
 
     pub fn new(name: String, width: i32, height: i32) -> MagnusApplication {
-        MagnusApplication { name: name, running: false, window: Window::new(width, height), layer_stack: LayerStack::new() }
+        MagnusApplication { name: name, running: false }
     }
 
     pub fn run(&self) -> () {
@@ -45,24 +42,22 @@ impl MagnusApplication {
     //#[inline(always)]
     //fn get_layer_stack(&self) -> LayerStack
 
-    pub fn on_window_resize(&mut self, e: &mut WindowResizeEvent) -> bool {
+    pub fn on_window_resize(&mut self, e: &mut Event) -> bool {
         e.set_handled(true);
         false
     }
 
-    pub fn on_window_close(&self, e: &mut WindowClosedEvent) -> bool {
+    pub fn on_window_close(&mut self, e: &mut Event) -> bool {
         e.set_handled(true);
         self.set_running(false);
         true
     }
 
-    pub fn on_event(&mut self, e: Box<Event>) {
-        let mut dispatcher = EventDispatcher::new(e);
-        dispatcher.dispatch(on_window_resize);
-        dispatcher.dispatch(on_window_close);
-
-        for()
-    }
-
+    //pub fn on_event(&mut self, e: Event) {
+    //    let mut dispatcher = EventDispatcher::new(e);
+    //    dispatcher.dispatch(MagnusApplication::on_window_resize);
+    //    dispatcher.dispatch(on_window_close);
+//
+  //  }
 }
 

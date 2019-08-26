@@ -17,7 +17,7 @@ pub struct MagnusApplication {
 
 impl MagnusApplication {
 
-    pub fn new(name: String, width: i32, height: i32) -> MagnusApplication {
+    pub fn new(name: String, _width: i32, _height: i32) -> MagnusApplication {
         MagnusApplication { name: name, running: false }
     }
 
@@ -42,13 +42,15 @@ impl MagnusApplication {
     //#[inline(always)]
     //fn get_layer_stack(&self) -> LayerStack
 
-    pub fn on_window_resize(&mut self, e: &mut Event) -> bool {
-        e.set_handled(true);
+    pub fn on_window_resize(&mut self, e: &mut dyn Event) -> bool {
+        let h = e.handled();
+        *h = true;
         false
     }
 
-    pub fn on_window_close(&mut self, e: &mut Event) -> bool {
-        e.set_handled(true);
+    pub fn on_window_close(&mut self, e: &mut dyn Event) -> bool {
+        let h = e.handled();
+        *h = true;
         self.set_running(false);
         true
     }

@@ -8,3 +8,6 @@ edition = "2018"
 log = "0.4"
 fern = { version = "0.5", features = ["colored"] }
 chrono = "0.4"
+glfw = { version = "0.32.0"} # , default-features = false }
+libc = "0.2.62"
+gl = "0.13.0"

@@ -38,13 +38,15 @@ pub struct EventDispatcher<'a> {
     event: &'a mut (dyn Event + 'a)
 }
 
+pub type EventCallbackFn = fn(&mut (dyn Event))-> bool;
+
 impl<'a> EventDispatcher<'a> {
 
-    pub fn new(ev_type: EventType, _event: &'a mut (dyn Event + 'a)) -> EventDispatcher<'a> {
-        EventDispatcher { event_type: ev_type, event: _event }
+    pub fn new(ev_type: EventType, event: &'a mut (dyn Event + 'a)) -> EventDispatcher<'a> {
+        EventDispatcher { event_type: ev_type, event: event }
     }
 
-    pub fn dispatch<T>(&mut self, func: fn(&mut (dyn Event + 'a)) -> bool) -> bool {
+    pub fn dispatch<T>(&mut self, func: EventCallbackFn) -> bool {
         if self.event_type == self.event.get_event_type() {
             let x = func(self.event);
             return x;

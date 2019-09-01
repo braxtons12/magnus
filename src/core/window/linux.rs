@@ -1,9 +1,9 @@
 use crate::core::window::*;
 use crate::core::graphics::ContextWrapper;
-use crate::core::graphics::directx::DirectXContext;
+use crate::core::graphics::opengl::OpenGLContext;
 use crate::events::event::EventCallbackFn;
 
-pub(crate) struct Win32Window<'a> {
+pub(crate) struct LinuxWindow<'a> {
     props: WindowProps,
     callback: EventCallbackFn,
     vsync: u8,
@@ -11,18 +11,18 @@ pub(crate) struct Win32Window<'a> {
     context_wrapper: &'a mut (dyn ContextWrapper + 'a)
 }
 
-impl<'a> Win32Window<'a> {
+impl<'a> LinuxWindow<'a> {
 
-    pub fn new(props: WindowProps, callback: EventCallbackFn, vsync: u8, window: glfw::Window) -> Win32Window<'a> {
-        debug!("glfw reports context version is {}", window.get_context_version());
+    pub fn new(props: WindowProps, callback: EventCallbackFn, vsync: u8, window: glfw::Window) -> LinuxWindow<'a> {
+        debug!("1 glfw reports context version is {}", window.get_context_version());
         unsafe {
-            let y = DirectXContext::new(window.glfw).as_mut().unwrap();
-            Win32Window { props: props, callback: callback, vsync: vsync, window: window, context_wrapper:  y}
+            let y = OpenGLContext::new(window.glfw).as_mut().unwrap();
+            LinuxWindow { props: props, callback: callback, vsync: vsync, window: window, context_wrapper: y }
         }
     }
 }
 
-impl<'a> WindowBehavior<'a> for Win32Window<'a> {
+impl<'a> WindowBehavior<'a> for LinuxWindow<'a> {
 
     fn get_width(&self) -> u32 {
         self.props.width
@@ -74,7 +74,7 @@ impl<'a> WindowBehavior<'a> for Win32Window<'a> {
     }
 
     fn get_native_window(&mut self) -> (Option<&mut glfw::Window>, Option<&mut glfw::Window>) {
-        (None, Some(&mut self.window))
+        (Some(&mut self.window), None)
     }
 
     fn on_update(&mut self) {
@@ -83,6 +83,6 @@ impl<'a> WindowBehavior<'a> for Win32Window<'a> {
     }
 
     fn get_context_wrapper(&mut self) -> &mut dyn ContextWrapper {
-        self.context_wrapper
+       self.context_wrapper
     }
 }

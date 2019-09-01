@@ -2,6 +2,7 @@ pub mod application;
 pub mod core_macros;
 pub mod entry_point;
 pub mod window;
+pub mod graphics;
 
 /**
  * Logger initialization function for debug builds

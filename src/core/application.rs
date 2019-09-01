@@ -6,28 +6,42 @@
  *
  **/
 use crate::events::event::*;
-use crate::events::event::Event;
-use crate::events::event::EventDispatcher;
+use crate::events::event::{Event, EventDispatcher};
+use crate::core::window::*;
 
 #[repr(C)]
-pub struct MagnusApplication {
-    name:   String,
-    running: bool
+pub struct MagnusApplication<'a> {
+    name: String,
+    running: bool,
+    window: Window<'a>
 }
 
-impl MagnusApplication {
+impl<'a> MagnusApplication<'a> {
 
-    pub fn new(name: String, _width: i32, _height: i32) -> MagnusApplication {
-        MagnusApplication { name: name, running: false }
-    }
-
-    pub fn run(&self) -> () {
-
-        debug!("Application {} Started", self.name);
-        loop {
-
+    pub fn new(name: String, width: i32, height: i32) -> MagnusApplication<'static> {
+        let props = WindowProps::new(name.clone(), Some(width as u32), Some(height as u32));
+        unsafe {
+            MagnusApplication { name: name, running: false, window: Window::new(props) }
         }
     }
+
+    pub fn run(&mut self) -> () {
+
+        debug!("Application {} Started", self.name);
+
+        unsafe {
+            self.window.get_context().load_symbols();
+        }
+        loop {
+                debug!("Window width is {}", self.window.get_width());
+                debug!("Changing clear color");
+                unsafe {
+                    gl::ClearColor(1.0, 0.0, 1.0, 1.0);
+                    gl::Clear(gl::COLOR_BUFFER_BIT);
+                }
+                self.window.on_update();
+        }
+}
 
     #[inline(always)]
     pub fn get_running(&self) -> bool {
@@ -59,7 +73,13 @@ impl MagnusApplication {
     //    let mut dispatcher = EventDispatcher::new(e);
     //    dispatcher.dispatch(MagnusApplication::on_window_resize);
     //    dispatcher.dispatch(on_window_close);
-//
-  //  }
+    //
+    //  }
+}
+
+pub fn on_event(e: &mut (dyn Event)) -> bool {
+    let h = e.handled();
+    *h = true;
+    true
 }
 

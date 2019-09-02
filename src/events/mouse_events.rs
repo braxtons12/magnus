@@ -21,6 +21,12 @@ impl MouseButtonPressedEvent {
     }
 }
 
+impl std::fmt::Display for MouseButtonPressedEvent {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "({}, {}, {}, {})", self.event_type, self.category_flags, self.msg, self.handled)
+    }
+}
+
 impl Event for MouseButtonPressedEvent {
 
     fn get_event_type(&self) -> EventType {
@@ -59,6 +65,12 @@ impl MouseButtonReleasedEvent {
         MouseButtonReleasedEvent { event_type: MouseButtonReleased,
         category_flags: EventInput as u32 | EventMouse as u32 | EventMouseButton as u32,
         msg: message, data: vec![button as f32], handled: false }
+    }
+}
+
+impl std::fmt::Display for MouseButtonReleasedEvent {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "({}, {}, {}, {})", self.event_type, self.category_flags, self.msg, self.handled)
     }
 }
 
@@ -103,6 +115,12 @@ impl MouseMovedEvent {
     }
 }
 
+impl std::fmt::Display for MouseMovedEvent {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "({}, {}, {}, {})", self.event_type, self.category_flags, self.msg, self.handled)
+    }
+}
+
 impl Event for MouseMovedEvent {
 
     fn get_event_type(&self) -> EventType {
@@ -141,6 +159,12 @@ impl MouseScrolledEvent {
         MouseScrolledEvent { event_type: MouseScrolled,
         category_flags: EventInput as u32 | EventMouse as u32,
         msg: message, data: vec![x, y], handled: false }
+    }
+}
+
+impl std::fmt::Display for MouseScrolledEvent {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "({}, {}, {}, {})", self.event_type, self.category_flags, self.msg, self.handled)
     }
 }
 

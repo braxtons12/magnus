@@ -20,6 +20,12 @@ impl WindowCloseEvent {
     }
 }
 
+impl std::fmt::Display for WindowCloseEvent {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "({}, {}, {}, {})", self.event_type, self.category_flags, self.msg, self.handled)
+    }
+}
+
 impl Event for WindowCloseEvent {
 
     fn get_event_type(&self) -> EventType {
@@ -58,6 +64,12 @@ impl WindowResizeEvent {
         WindowResizeEvent { event_type: WindowResize,
         category_flags: EventApplication as u32,
         msg: message, data: vec![width, height], handled: false }
+    }
+}
+
+impl std::fmt::Display for WindowResizeEvent {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "({}, {}, {}, {})", self.event_type, self.category_flags, self.msg, self.handled)
     }
 }
 
@@ -101,6 +113,12 @@ impl WindowFocusEvent {
     }
 }
 
+impl std::fmt::Display for WindowFocusEvent {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "({}, {}, {}, {})", self.event_type, self.category_flags, self.msg, self.handled)
+    }
+}
+
 impl Event for WindowFocusEvent {
 
     fn get_event_type(&self) -> EventType {
@@ -138,6 +156,12 @@ impl WindowLostFocusEvent {
         WindowLostFocusEvent { event_type: WindowLostFocus,
         category_flags: EventApplication as u32,
         msg: message, handled: false }
+    }
+}
+
+impl std::fmt::Display for WindowLostFocusEvent {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "({}, {}, {}, {})", self.event_type, self.category_flags, self.msg, self.handled)
     }
 }
 
@@ -179,6 +203,12 @@ impl WindowMovedEvent {
         WindowMovedEvent { event_type: WindowMoved,
         category_flags: EventApplication as u32,
         msg: message, data: vec![x, y], handled: false }
+    }
+}
+
+impl std::fmt::Display for WindowMovedEvent {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "({}, {}, {}, {})", self.event_type, self.category_flags, self.msg, self.handled)
     }
 }
 

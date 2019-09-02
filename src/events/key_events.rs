@@ -20,6 +20,12 @@ impl KeyPressedEvent {
     }
 }
 
+impl std::fmt::Display for KeyPressedEvent {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "({}, {}, {}, {})", self.event_type, self.category_flags, self.msg, self.handled)
+    }
+}
+
 impl Event for KeyPressedEvent {
 
     fn get_event_type(&self) -> EventType {
@@ -58,6 +64,12 @@ impl KeyReleasedEvent {
         KeyReleasedEvent { event_type: KeyReleased,
         category_flags: EventInput as u32 | EventKeyboard as u32,
         msg: message, data: vec![keycode as f32], handled: false }
+    }
+}
+
+impl std::fmt::Display for KeyReleasedEvent {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "({}, {}, {}, {})", self.event_type, self.category_flags, self.msg, self.handled)
     }
 }
 

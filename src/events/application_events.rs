@@ -20,6 +20,12 @@ impl AppTickEvent {
     }
 }
 
+impl std::fmt::Display for AppTickEvent {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "({}, {}, {}, {})", self.event_type, self.category_flags, self.msg, self.handled)
+    }
+}
+
 impl Event for AppTickEvent {
 
     fn get_event_type(&self) -> EventType {
@@ -61,6 +67,12 @@ impl AppUpdateEvent {
     }
 }
 
+impl std::fmt::Display for AppUpdateEvent {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "({}, {}, {}, {})", self.event_type, self.category_flags, self.msg, self.handled)
+    }
+}
+
 impl Event for AppUpdateEvent {
 
     fn get_event_type(&self) -> EventType {
@@ -98,6 +110,12 @@ impl AppRenderEvent {
         AppRenderEvent { event_type: AppRender,
         category_flags: EventApplication as u32,
         msg: message, handled: false }
+    }
+}
+
+impl std::fmt::Display for AppRenderEvent {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "({}, {}, {}, {})", self.event_type, self.category_flags, self.msg, self.handled)
     }
 }
 

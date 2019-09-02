@@ -9,6 +9,28 @@ pub enum EventType {
     MouseButtonPressed, MouseButtonReleased, MouseMoved, MouseScrolled
 }
 
+impl std::fmt::Display for EventType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            EventType::None => write!(f, "(None)", ),
+            WindowClose => write!(f, "WindowClose"),
+            WindowResize => write!(f, "WindowResize"),
+            WindowFocus => write!(f, "WindowFocus"),
+            WindowLostFocus => write!(f, "WindowLostFocus"),
+            WindowMoved => write!(f, "WindowMoved"),
+            AppTick => write!(f, "AppTick"),
+            AppUpdate => write!(f, "AppUpdate"),
+            AppRender => write!(f, "AppRender"),
+            KeyPressed => write!(f, "KeyPressed"),
+            KeyReleased => write!(f, "KeyReleased"),
+            MouseButtonPressed => write!(f, "MouseButtonPressed"),
+            MouseButtonReleased => write!(f, "MouseButtonReleased"),
+            MouseMoved => write!(f, "MouseMoved"),
+            MouseScrolled => write!(f, "MouseScrolled")
+        }
+    }
+}
+
 #[derive(Debug)]
 #[derive(PartialEq, Eq)]
 pub enum EventCategory {
@@ -20,7 +42,7 @@ pub enum EventCategory {
     EventMouseButton    = BIT!(4)
 }
 
-pub trait Event {
+pub trait Event : std::fmt::Display {
 
     fn get_event_type(&self) -> EventType;
 

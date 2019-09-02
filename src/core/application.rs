@@ -67,17 +67,9 @@ impl<'a> MagnusApplication<'a> {
         true
     }
 
-    //pub fn on_event(&mut self, e: Event) {
-    //    let mut dispatcher = EventDispatcher::new(e);
-    //    dispatcher.dispatch(MagnusApplication::on_window_resize);
-    //    dispatcher.dispatch(on_window_close);
-    //
-    //  }
+    pub fn on_event(e:& mut (dyn Event)) -> bool {
+        
+        debug!("Processing event e: {}", e);
+        true
+    }
 }
-
-pub fn on_event(e: &mut (dyn Event)) -> bool {
-    let h = e.handled();
-    *h = true;
-    true
-}
-

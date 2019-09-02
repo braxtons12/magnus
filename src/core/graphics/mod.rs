@@ -13,30 +13,30 @@ impl<'a> Context<'a> {
         Context { context_wrapper: wrapper }
     }
 
-    pub fn load_symbols(&mut self) {
+    pub fn load_symbols(&mut self) -> Result<(), SymbolLoadError> {
         debug!("Context loading symbols");
-        self.context_wrapper.load_symbols();
+        self.context_wrapper.load_symbols()
     }
 }
 
 pub trait ContextWrapper {
-    fn load_symbols(&mut self);
+    fn load_symbols(&mut self) -> Result<(), SymbolLoadError>;
 }
 
 impl ContextWrapper for &mut dyn ContextWrapper {
-    fn load_symbols(&mut self) {
-        self.load_symbols();
+    fn load_symbols(&mut self) -> Result<(), SymbolLoadError> {
+        self.load_symbols()
     }
 }
 
 #[derive(Debug)]
-struct SymbolLoadError {
+pub struct SymbolLoadError {
     details: String
 }
 
 impl SymbolLoadError {
-    fn new(msg: String) -> SymbolLoadError {
-        SymbolLoadError { details: msg }
+    fn new(msg: &str) -> SymbolLoadError {
+        SymbolLoadError { details: String::from(msg) }
     }
 }
 

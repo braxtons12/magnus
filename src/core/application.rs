@@ -20,18 +20,14 @@ impl<'a> MagnusApplication<'a> {
 
     pub fn new(name: String, width: i32, height: i32) -> MagnusApplication<'static> {
         let props = WindowProps::new(name.clone(), Some(width as u32), Some(height as u32));
-        unsafe {
-            MagnusApplication { name: name, running: false, window: Window::new(props) }
-        }
+        MagnusApplication { name: name, running: false, window: Window::new(props) }
     }
 
     pub fn run(&mut self) -> () {
 
         debug!("Application {} Started", self.name);
 
-        unsafe {
-            self.window.get_context().load_symbols();
-        }
+        self.window.get_context().load_symbols().expect("Failed to load graphics context symbols");
         loop {
                 debug!("Window width is {}", self.window.get_width());
                 debug!("Changing clear color");

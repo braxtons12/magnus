@@ -43,7 +43,6 @@ impl<'a> Window<'a> {
         let (nwin, _not) = win.get_native_window();
         debug!("3. glfw reports context version is {}", nwin.unwrap().get_context_version());
         let x = Box::into_raw(win);
-        let y: &dyn WindowBehavior; 
         unsafe {
             let y = x.as_mut().unwrap();
             Window { window: x, event_receiver: ev, context: graphics::Context::new(y.get_context_wrapper()) }

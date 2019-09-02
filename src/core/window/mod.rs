@@ -165,7 +165,7 @@ fn create<'a>(props: WindowProps) -> Option<(Box<dyn WindowBehavior<'static>>, (
         window.set_key_polling(true);
         window.make_current();
 
-        return Some((Box::from(Win32Window::new(props, application::MagnusApplication::on_event, 0, window)), (Some(events), None)));
+        return Some((Box::from(Win32Window::new(props, application::MagnusApplication::on_event, 0, window)), (None, Some(events))));
     } else if cfg!(unix) {
         unsafe {
             if GLFW_S.is_none() {

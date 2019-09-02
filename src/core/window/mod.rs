@@ -157,7 +157,7 @@ fn create<'a>(props: WindowProps) -> Option<Box<dyn WindowBehavior<'static>>> {
         }
         window = x.0;
         events = x.1;
-        window.set_key_polling(true);
+        window.set_all_polling(true);
         window.make_current();
 
         return Some(Box::from(Win32Window::new(props, application::MagnusApplication::on_event, 0, window, events)));
@@ -178,7 +178,7 @@ fn create<'a>(props: WindowProps) -> Option<Box<dyn WindowBehavior<'static>>> {
         }
         window = x.0;
         events = x.1;
-        window.set_key_polling(true);
+        window.set_all_polling(true);
         window.make_current();
         
         return Some(Box::from(LinuxWindow::new(props, application::MagnusApplication::on_event, 0, window, events)));

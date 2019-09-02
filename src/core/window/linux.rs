@@ -1,7 +1,6 @@
 use crate::core::window::*;
 use crate::core::graphics::ContextWrapper;
 use crate::core::graphics::opengl::OpenGLContext;
-use crate::events::application_events::*;
 use crate::events::key_events::*;
 use crate::events::mouse_events::*;
 use crate::events::window_events::*;
@@ -108,13 +107,40 @@ impl<'a> WindowBehavior<'a> for LinuxWindow<'a> {
                     let mut x = MouseButtonReleasedEvent::new(format!("Mouse Button {} pressed with {} mods", button as i32, mods.bits()), button as i32, mods.bits());
                     self.callback(&mut x);
                 },
-                _ => { }
+                glfw::WindowEvent::Scroll(x, y) => {
+                    let mut x = MouseScrolledEvent::new(format!("Mouse Scrolled x: {}, y: {}", x, y), x as f32, y as f32);
+                    self.callback(&mut x);
+                },
+                glfw::WindowEvent::CursorPos(x, y) => {
+                    let mut x = MouseMovedEvent::new(format!("Mouse Moved x: {}, y: {}", x, y), x as f32, y as f32);
+                    self.callback(&mut x);
+                },
+                glfw::WindowEvent::Focus(focus) => {
+                    if focus {
+                        let mut x = WindowFocusEvent::new(format!("Window Focused"));
+                        self.callback(&mut x);
+                    } else {
+                        let mut x = WindowLostFocusEvent::new(format!("Window Lost Focus"));
+                        self.callback(&mut x);
+                    }
+                },
+                glfw::WindowEvent::Pos(x, y) => {
+                    let mut x = WindowMovedEvent::new(format!("Window Moved x: {}, y: {}", x, y), x as f32, y as f32);
+                    self.callback(&mut x);
+                },
+                glfw::WindowEvent::Size(x, y) => {
+                    let mut x = WindowResizeEvent::new(format!("Window Resized x: {}, y: {}", x, y), x as f32, y as f32);
+                    self.callback(&mut x);
+                }
+                _ => { 
+                    if event == glfw::WindowEvent::Close {
+                        let mut x = WindowCloseEvent::new(format!("Window Should Close"));
+                        self.callback(&mut x);
+                        should_close = true;
+                    }
+                }
             }
-            if event == glfw::WindowEvent::Close {
-                let mut x = WindowCloseEvent::new(format!("Window Should Close"));
-                self.callback(&mut x);
-                should_close = true
-            }
+            
         }
         self.window.swap_buffers();
         should_close

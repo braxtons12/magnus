@@ -142,24 +142,47 @@ pub(crate) trait WindowBehavior<'a> {
     fn get_context_wrapper(&mut self) -> &mut dyn graphics::ContextWrapper;
 }
 
+static mut GLFW_S: Option<glfw::Glfw> = None;
+
 fn create<'a>(props: WindowProps) -> Option<(Box<dyn WindowBehavior<'static>>, (Option<Receiver<(f64, glfw::WindowEvent)>>, Option<Receiver<(f64, glfw::WindowEvent)>>))> {
     if cfg!(windows) {
-        let glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
+        unsafe {
+            if GLFW_S.is_none() {
+                GLFW_S = Some(glfw::init(glfw::FAIL_ON_ERRORS).unwrap());
+            }
+        }
 
         debug!("Creating Windows Window: {}", props.title);
-        let (mut window, events) = glfw.create_window(props.width, props.height, props.title.as_str(), glfw::WindowMode::Windowed)
-            .expect("Failed to create GLFW window.");
+        let mut window: glfw::Window;
+        let events: Receiver<(f64, glfw::WindowEvent)>;
+        let x: (glfw::Window, Receiver<(f64, glfw::WindowEvent)>);
+        unsafe {
+            x = GLFW_S.unwrap().create_window(props.width, props.height, props.title.as_str(), glfw::WindowMode::Windowed)
+                .expect("Failed to create GLFW window.");
+        }
+        window = x.0;
+        events = x.1;
         window.set_key_polling(true);
         window.make_current();
 
         return Some((Box::from(Win32Window::new(props, application::on_event, 0, window)), (Some(events), None)));
     } else if cfg!(unix) {
-        let glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
+        unsafe {
+            if GLFW_S.is_none() {
+                GLFW_S = Some(glfw::init(glfw::FAIL_ON_ERRORS).unwrap());
+            }
+        }
 
-        debug!("Creating Linux Window: {}", props.title);
-
-        let (mut window, events) = glfw.create_window(props.width, props.height, props.title.as_str(), glfw::WindowMode::Windowed)
-            .expect("Failed to create GLFW window.");
+        debug!("Creating Windows Window: {}", props.title);
+        let mut window: glfw::Window;
+        let events: Receiver<(f64, glfw::WindowEvent)>;
+        let x: (glfw::Window, Receiver<(f64, glfw::WindowEvent)>);
+        unsafe {
+            x = GLFW_S.unwrap().create_window(props.width, props.height, props.title.as_str(), glfw::WindowMode::Windowed)
+                .expect("Failed to create GLFW window.");
+        }
+        window = x.0;
+        events = x.1;
         window.set_key_polling(true);
         window.make_current();
         

@@ -28,14 +28,16 @@ impl<'a> MagnusApplication<'a> {
         debug!("Application {} Started", self.name);
 
         self.window.get_context().load_symbols().expect("Failed to load graphics context symbols");
-        loop {
+        'main: loop {
                 debug!("Window width is {}", self.window.get_width());
                 debug!("Changing clear color");
                 unsafe {
                     gl::ClearColor(1.0, 0.0, 1.0, 1.0);
                     gl::Clear(gl::COLOR_BUFFER_BIT);
                 }
-                self.window.on_update();
+                if self.window.on_update() {
+                    break 'main;
+                }
         }
 }
 

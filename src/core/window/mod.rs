@@ -116,9 +116,9 @@ impl<'a> Window<'a> {
         }
     }
 
-    pub fn on_update(&mut self) {
+    pub fn on_update(&mut self) -> bool {
         unsafe {
-            self.window.as_mut().unwrap().on_update();
+            self.window.as_mut().unwrap().on_update()
         }
     }
 
@@ -138,7 +138,7 @@ pub(crate) trait WindowBehavior<'a> {
     fn set_vsync(&mut self, interval: u8);
     fn get_props(&self) -> & WindowProps;
     fn get_native_window(&mut self) -> (Option<&mut glfw::Window>, Option<&mut glfw::Window>); //when win32 window updated for alt wrapper (sdl??)/ or raw win32, update to match
-    fn on_update(&mut self);
+    fn on_update(&mut self) -> bool;
     fn get_context_wrapper(&mut self) -> &mut dyn graphics::ContextWrapper;
 }
 

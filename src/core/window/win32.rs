@@ -77,9 +77,10 @@ impl<'a> WindowBehavior<'a> for Win32Window<'a> {
         (None, Some(&mut self.window))
     }
 
-    fn on_update(&mut self) {
+    fn on_update(&mut self) -> bool {
         self.window.glfw.poll_events();
         self.window.swap_buffers();
+        false
     }
 
     fn get_context_wrapper(&mut self) -> &mut dyn ContextWrapper {

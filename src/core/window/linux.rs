@@ -1,6 +1,10 @@
 use crate::core::window::*;
 use crate::core::graphics::ContextWrapper;
 use crate::core::graphics::opengl::OpenGLContext;
+use crate::events::application_events::*;
+use crate::events::key_events::*;
+use crate::events::mouse_events::*;
+use crate::events::window_events::*;
 use crate::events::event::EventCallbackFn;
 
 pub(crate) struct LinuxWindow<'a> {
@@ -20,6 +24,10 @@ impl<'a> LinuxWindow<'a> {
             let y = OpenGLContext::new(window.glfw).as_mut().unwrap();
             LinuxWindow { props: props, callback: callback, vsync: vsync, window: window, event_receiver: events, context_wrapper: y }
         }
+    }
+
+    pub fn callback(&self, e: &mut (dyn Event)) -> bool {
+        (self.callback)(e)
     }
 }
 
@@ -80,8 +88,36 @@ impl<'a> WindowBehavior<'a> for LinuxWindow<'a> {
 
     fn on_update(&mut self) -> bool {
         self.window.glfw.poll_events();
+        let mut should_close = false;
+        for (_, event) in glfw::flush_messages(&self.event_receiver) {
+            println!("{:?}", event);
+            match event {
+                glfw::WindowEvent::Key(_, id, glfw::Action::Press, mods) => {
+                    let mut x = KeyPressedEvent::new(format!("Key {} pressed with {} mods", id, mods.bits()), id, mods.bits());
+                    self.callback(&mut x);
+                },
+                glfw::WindowEvent::Key(_, id, glfw::Action::Release, mods) => {
+                    let mut x = KeyReleasedEvent::new(format!("Key {} released with {} mods", id, mods.bits()), id, mods.bits());
+                    self.callback(&mut x);
+                },
+                glfw::WindowEvent::MouseButton(button, glfw::Action::Press, mods) => {
+                    let mut x = MouseButtonPressedEvent::new(format!("Mouse Button {} pressed with {} mods", button as i32, mods.bits()), button as i32, mods.bits());
+                    self.callback(&mut x);
+                },
+                glfw::WindowEvent::MouseButton(button, glfw::Action::Release, mods) => {
+                    let mut x = MouseButtonReleasedEvent::new(format!("Mouse Button {} pressed with {} mods", button as i32, mods.bits()), button as i32, mods.bits());
+                    self.callback(&mut x);
+                },
+                _ => { }
+            }
+            if event == glfw::WindowEvent::Close {
+                let mut x = WindowCloseEvent::new(format!("Window Should Close"));
+                self.callback(&mut x);
+                should_close = true
+            }
+        }
         self.window.swap_buffers();
-        false
+        should_close
     }
 
     fn get_context_wrapper(&mut self) -> &mut dyn ContextWrapper {

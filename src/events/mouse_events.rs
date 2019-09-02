@@ -14,10 +14,10 @@ pub struct MouseButtonPressedEvent {
 }
 
 impl MouseButtonPressedEvent {
-    pub fn new(message: String, button: i32) -> MouseButtonPressedEvent {
+    pub fn new(message: String, button: i32, modifiers: i32) -> MouseButtonPressedEvent {
         MouseButtonPressedEvent { event_type: MouseButtonPressed,
         category_flags: EventInput as u32 | EventMouse as u32 | EventMouseButton as u32,
-        msg: message, data: vec![button as f32], handled: false }
+        msg: message, data: vec![button as f32, modifiers as f32], handled: false }
     }
 }
 
@@ -61,10 +61,10 @@ pub struct MouseButtonReleasedEvent {
 }
 
 impl MouseButtonReleasedEvent {
-    pub fn new(message: String, button:i32) -> MouseButtonReleasedEvent {
+    pub fn new(message: String, button:i32, modifiers: i32) -> MouseButtonReleasedEvent {
         MouseButtonReleasedEvent { event_type: MouseButtonReleased,
         category_flags: EventInput as u32 | EventMouse as u32 | EventMouseButton as u32,
-        msg: message, data: vec![button as f32], handled: false }
+        msg: message, data: vec![button as f32, modifiers as f32], handled: false }
     }
 }
 

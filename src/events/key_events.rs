@@ -13,10 +13,10 @@ pub struct KeyPressedEvent {
 }
 
 impl KeyPressedEvent {
-    pub fn new(message: String, keycode: i32) -> KeyPressedEvent {
+    pub fn new(message: String, keycode: i32, modifiers: i32) -> KeyPressedEvent {
         KeyPressedEvent { event_type: KeyPressed,
         category_flags: EventInput as u32 | EventKeyboard as u32,
-        msg: message, data: vec![keycode as f32], handled: false }
+        msg: message, data: vec![keycode as f32, modifiers as f32], handled: false }
     }
 }
 
@@ -60,10 +60,10 @@ pub struct KeyReleasedEvent {
 }
 
 impl KeyReleasedEvent {
-    pub fn new(message: String, keycode: i32) -> KeyReleasedEvent {
+    pub fn new(message: String, keycode: i32, modifiers: i32) -> KeyReleasedEvent {
         KeyReleasedEvent { event_type: KeyReleased,
         category_flags: EventInput as u32 | EventKeyboard as u32,
-        msg: message, data: vec![keycode as f32], handled: false }
+        msg: message, data: vec![keycode as f32, modifiers as f32], handled: false }
     }
 }
 

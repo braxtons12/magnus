@@ -8,16 +8,17 @@ pub(crate) struct Win32Window<'a> {
     callback: EventCallbackFn,
     vsync: u8,
     window: glfw::Window,
+    event_receiver: Receiver<(f64, glfw::WindowEvent)>,
     context_wrapper: &'a mut (dyn ContextWrapper + 'a)
 }
 
 impl<'a> Win32Window<'a> {
 
-    pub fn new(props: WindowProps, callback: EventCallbackFn, vsync: u8, window: glfw::Window) -> Win32Window<'a> {
+    pub fn new(props: WindowProps, callback: EventCallbackFn, vsync: u8, window: glfw::Window, events: Receiver<(f64, glfw::WindowEvent)>) -> Win32Window<'a> {
         debug!("glfw reports context version is {}", window.get_context_version());
         unsafe {
             let y = DirectXContext::new(window.glfw).as_mut().unwrap();
-            Win32Window { props: props, callback: callback, vsync: vsync, window: window, context_wrapper:  y}
+            Win32Window { props: props, callback: callback, vsync: vsync, window: window, event_receiver: events, context_wrapper:  y}
         }
     }
 }

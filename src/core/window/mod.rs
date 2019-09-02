@@ -31,21 +31,20 @@ impl WindowProps {
 #[repr(C)]
 pub struct Window<'a> {
     window: *mut dyn WindowBehavior<'a>,
-    event_receiver: (Option<Receiver<(f64, glfw::WindowEvent)>>, Option<Receiver<(f64, glfw::WindowEvent)>>),
     context: graphics::Context<'a>
         //when win32 window updated for alt wrapper (sdl??)/ or raw win32, update to match
 }
 
 impl<'a> Window<'a> {
     pub fn new(props: WindowProps) -> Window<'static> {
-        let (mut win, ev) = create(props).expect("Error Creating Window");
+        let mut win = create(props).expect("Error Creating Window");
         debug!("Success creating window: {}!", win.get_props().title);
         let (nwin, _not) = win.get_native_window();
         debug!("3. glfw reports context version is {}", nwin.unwrap().get_context_version());
         let x = Box::into_raw(win);
         unsafe {
             let y = x.as_mut().unwrap();
-            Window { window: x, event_receiver: ev, context: graphics::Context::new(y.get_context_wrapper()) }
+            Window { window: x, context: graphics::Context::new(y.get_context_wrapper()) }
         }
     }
 
@@ -56,10 +55,6 @@ impl<'a> Window<'a> {
       }
       }
      **/
-
-    pub fn get_event_receiver(&self) -> & (Option<Receiver<(f64, glfw::WindowEvent)>>, Option<Receiver<(f64, glfw::WindowEvent)>>) {
-        & self.event_receiver
-    }
 
     pub fn get_width(&self) -> u32 {
         unsafe {
@@ -144,7 +139,7 @@ pub(crate) trait WindowBehavior<'a> {
 
 static mut GLFW_S: Option<glfw::Glfw> = None;
 
-fn create<'a>(props: WindowProps) -> Option<(Box<dyn WindowBehavior<'static>>, (Option<Receiver<(f64, glfw::WindowEvent)>>, Option<Receiver<(f64, glfw::WindowEvent)>>))> {
+fn create<'a>(props: WindowProps) -> Option<Box<dyn WindowBehavior<'static>>> {
     if cfg!(windows) {
         unsafe {
             if GLFW_S.is_none() {
@@ -165,7 +160,7 @@ fn create<'a>(props: WindowProps) -> Option<(Box<dyn WindowBehavior<'static>>, (
         window.set_key_polling(true);
         window.make_current();
 
-        return Some((Box::from(Win32Window::new(props, application::MagnusApplication::on_event, 0, window)), (None, Some(events))));
+        return Some(Box::from(Win32Window::new(props, application::MagnusApplication::on_event, 0, window, events)));
     } else if cfg!(unix) {
         unsafe {
             if GLFW_S.is_none() {
@@ -186,7 +181,7 @@ fn create<'a>(props: WindowProps) -> Option<(Box<dyn WindowBehavior<'static>>, (
         window.set_key_polling(true);
         window.make_current();
         
-        return Some((Box::from(LinuxWindow::new(props, application::MagnusApplication::on_event, 0, window)), (Some(events), None)));
+        return Some(Box::from(LinuxWindow::new(props, application::MagnusApplication::on_event, 0, window, events)));
     } else {
         return None;
     }

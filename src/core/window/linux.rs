@@ -8,16 +8,17 @@ pub(crate) struct LinuxWindow<'a> {
     callback: EventCallbackFn,
     vsync: u8,
     window: glfw::Window,
+    event_receiver: Receiver<(f64, glfw::WindowEvent)>,
     context_wrapper: &'a mut (dyn ContextWrapper + 'a)
 }
 
 impl<'a> LinuxWindow<'a> {
 
-    pub fn new(props: WindowProps, callback: EventCallbackFn, vsync: u8, window: glfw::Window) -> LinuxWindow<'a> {
+    pub fn new(props: WindowProps, callback: EventCallbackFn, vsync: u8, window: glfw::Window, events: Receiver<(f64, glfw::WindowEvent)>) -> LinuxWindow<'a> {
         debug!("1 glfw reports context version is {}", window.get_context_version());
         unsafe {
             let y = OpenGLContext::new(window.glfw).as_mut().unwrap();
-            LinuxWindow { props: props, callback: callback, vsync: vsync, window: window, context_wrapper: y }
+            LinuxWindow { props: props, callback: callback, vsync: vsync, window: window, event_receiver: events, context_wrapper: y }
         }
     }
 }

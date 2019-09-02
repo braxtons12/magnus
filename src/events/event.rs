@@ -13,20 +13,20 @@ impl std::fmt::Display for EventType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             EventType::None => write!(f, "(None)", ),
-            WindowClose => write!(f, "WindowClose"),
-            WindowResize => write!(f, "WindowResize"),
-            WindowFocus => write!(f, "WindowFocus"),
-            WindowLostFocus => write!(f, "WindowLostFocus"),
-            WindowMoved => write!(f, "WindowMoved"),
-            AppTick => write!(f, "AppTick"),
-            AppUpdate => write!(f, "AppUpdate"),
-            AppRender => write!(f, "AppRender"),
-            KeyPressed => write!(f, "KeyPressed"),
-            KeyReleased => write!(f, "KeyReleased"),
-            MouseButtonPressed => write!(f, "MouseButtonPressed"),
-            MouseButtonReleased => write!(f, "MouseButtonReleased"),
-            MouseMoved => write!(f, "MouseMoved"),
-            MouseScrolled => write!(f, "MouseScrolled")
+            EventType::WindowClose => write!(f, "WindowClose"),
+            EventType::WindowResize => write!(f, "WindowResize"),
+            EventType::WindowFocus => write!(f, "WindowFocus"),
+            EventType::WindowLostFocus => write!(f, "WindowLostFocus"),
+            EventType::WindowMoved => write!(f, "WindowMoved"),
+            EventType::AppTick => write!(f, "AppTick"),
+            EventType::AppUpdate => write!(f, "AppUpdate"),
+            EventType::AppRender => write!(f, "AppRender"),
+            EventType::KeyPressed => write!(f, "KeyPressed"),
+            EventType::KeyReleased => write!(f, "KeyReleased"),
+            EventType::MouseButtonPressed => write!(f, "MouseButtonPressed"),
+            EventType::MouseButtonReleased => write!(f, "MouseButtonReleased"),
+            EventType::MouseMoved => write!(f, "MouseMoved"),
+            EventType::MouseScrolled => write!(f, "MouseScrolled")
         }
     }
 }

@@ -116,13 +116,8 @@ impl<'a> WindowBehavior<'a> for LinuxWindow<'a> {
                     self.callback(&mut x);
                 },
                 glfw::WindowEvent::Focus(focus) => {
-                    if focus {
-                        let mut x = WindowFocusEvent::new(format!("Window Focused"));
-                        self.callback(&mut x);
-                    } else {
-                        let mut x = WindowLostFocusEvent::new(format!("Window Lost Focus"));
-                        self.callback(&mut x);
-                    }
+                    let mut x = WindowFocusEvent::new(format!("Window Focused"), focus);
+                    self.callback(&mut x);
                 },
                 glfw::WindowEvent::Pos(x, y) => {
                     let mut x = WindowMovedEvent::new(format!("Window Moved x: {}, y: {}", x, y), x as f32, y as f32);

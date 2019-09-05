@@ -27,7 +27,7 @@ pub extern "C" fn main(argc: isize, argv : *const *const u8) -> isize {
 
 #[cfg(target_os = "windows")]
 #[no_mangle]
-pub extern "C" fn start(argc: iszie, argv: *const *const u8) -> iszie {
+pub extern "C" fn start(argc: isize, argv: *const *const u8) -> isize {
 
     if core::setup_logger().is_err() {
         println!("Error, could not init loggers");
@@ -35,7 +35,7 @@ pub extern "C" fn start(argc: iszie, argv: *const *const u8) -> iszie {
     }
 
     unsafe {
-        let app = create_application();
+        let mut app = create_application();
         app.run();
     }
 

@@ -8,36 +8,20 @@ extern "Rust" {
     pub fn create_application() -> MagnusApplication<'static>;
 }
 
-#[cfg(any(unix, linux))]
-#[no_mangle]
-pub extern "C" fn main(argc: isize, argv : *const *const u8) -> isize {
+#[macro_export]
+macro_rules! magnus_engine {
+    () => {
+        pub fn main() {
+            use magnus::core::setup_logger;
 
-    if core::setup_logger().is_err() {
-        println!("Error, could not init loggers");
-        return -1;
+            if setup_logger().is_err() {
+                panic!("Error, could not init loggers!");
+            }
+
+            unsafe {
+                let mut app = create_application();
+                app.run();
+            }
+        }
     }
-
-    unsafe {
-        let mut app = create_application();
-        app.run();
-    }
-
-    0
-}
-
-#[cfg(target_os = "windows")]
-#[no_mangle]
-pub extern "C" fn start(argc: isize, argv: *const *const u8) -> isize {
-
-    if core::setup_logger().is_err() {
-        println!("Error, could not init loggers");
-        return -1;
-    }
-
-    unsafe {
-        let mut app = create_application();
-        app.run();
-    }
-
-    0
 }

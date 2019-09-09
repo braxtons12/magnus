@@ -1,3 +1,5 @@
+#![allow(clippy::too_many_arguments)]
+
 use std::sync::Arc;
 
 use vulkano::swapchain::Surface;
@@ -45,7 +47,7 @@ impl<'a> LinuxWindow<'a> {
                     z
                 }
             };
-            LinuxWindow { props: props, callback: callback, vsync: vsync,
+            LinuxWindow { props, callback, vsync,
             glfw_context: context,
             glfw_render_context: render_context,
             vulkan_surface: surface,
@@ -140,7 +142,7 @@ impl<'a> WindowBehavior<'a> for LinuxWindow<'a> {
                     self.callback(&mut x);
                 },
                 glfw::WindowEvent::Focus(focus) => {
-                    let mut x = WindowFocusEvent::new(format!("Window Focused"), focus);
+                    let mut x = WindowFocusEvent::new("Window Focused".to_string(), focus);
                     self.callback(&mut x);
                 },
                 glfw::WindowEvent::Pos(x, y) => {
@@ -153,7 +155,7 @@ impl<'a> WindowBehavior<'a> for LinuxWindow<'a> {
                 }
                 _ => { 
                     if event == glfw::WindowEvent::Close {
-                        let mut x = WindowCloseEvent::new(format!("Window Should Close"));
+                        let mut x = WindowCloseEvent::new("Window Should Close".to_string());
                         self.callback(&mut x);
                         should_close = true;
                     }

@@ -74,7 +74,7 @@ pub type EventCallbackFn = fn(&mut (dyn Event))-> bool;
 impl<'a> EventDispatcher<'a> {
 
     pub fn new(ev_type: EventType, event: &'a mut (dyn Event + 'a)) -> EventDispatcher<'a> {
-        EventDispatcher { event_type: ev_type, event: event }
+        EventDispatcher { event_type: ev_type, event }
     }
 
     pub fn dispatch<T>(&mut self, func: EventCallbackFn) -> bool {

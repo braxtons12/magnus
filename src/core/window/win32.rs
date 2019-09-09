@@ -1,3 +1,5 @@
+#![allow(clippy::too_many_arguments)]
+
 use std::sync::Arc;
 
 use vulkano::swapchain::Surface;
@@ -49,7 +51,7 @@ impl<'a> Win32Window<'a> {
                 }
             };
             debug!("Initializing Win32Window");
-            Win32Window { props: props, callback: callback, vsync: vsync,
+            Win32Window { props, callback, vsync,
             glfw_context: context,
             glfw_render_context: match mode {
                 GraphicsMode::OpenGL => Some(render_context),
@@ -147,7 +149,7 @@ impl<'a> WindowBehavior<'a> for Win32Window<'a> {
                     self.callback(&mut x);
                 },
                 glfw::WindowEvent::Focus(focus) => {
-                    let mut x = WindowFocusEvent::new(format!("Window Focused"), focus);
+                    let mut x = WindowFocusEvent::new("Window Focused".to_string(), focus);
                     self.callback(&mut x);
                 },
                 glfw::WindowEvent::Pos(x, y) => {
@@ -160,7 +162,7 @@ impl<'a> WindowBehavior<'a> for Win32Window<'a> {
                 }
                 _ => { 
                     if event == glfw::WindowEvent::Close {
-                        let mut x = WindowCloseEvent::new(format!("Window Should Close"));
+                        let mut x = WindowCloseEvent::new("Window Should Close".to_string());
                         self.callback(&mut x);
                         should_close = true;
                     }

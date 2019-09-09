@@ -5,8 +5,7 @@ use vulkano::instance::Instance;
 use vulkano::instance::PhysicalDevice;
 use vulkano::device::{Device, DeviceExtensions, Features};
 use vulkano::swapchain::Surface;
-
-use vulkano_glfw_v2 as vulkano_glfw;
+use vulkano_glfw;
 
 use crate::core::graphics::{ContextWrapper, SymbolLoadError, DeviceCreationError};
 
@@ -28,7 +27,7 @@ impl <'a> VulkanContext<'a> {
         let inst = Instance::new(None, ext, None).expect("Could not create vulkan instance");
         debug!("vulkan instance references is: {}", Arc::strong_count(&inst));
 
-        Box::from(VulkanContext { gl: gl, vulkan_device_id: id, vulkan_instance: inst, 
+        Box::from(VulkanContext { gl, vulkan_device_id: id, vulkan_instance: inst, 
         vulkan_physical_device: None, vulkan_device: None, vulkan_queue_familes: None })
     }
     
@@ -50,7 +49,7 @@ impl <'a> VulkanContext<'a> {
             .find(|&q| q.supports_graphics())
             .expect("Couldn't find a graphical queue family");
         
-        let (device, mut queues) = {
+        let (device, _queues) = {
             Device::new(physical_device, &physical_device.supported_features(), &DeviceExtensions::supported_by_device(physical_device),
                 [(queue_family, 0.5)].iter().cloned()).expect("Failed to create device")
         };

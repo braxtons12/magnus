@@ -11,7 +11,7 @@ pub struct OpenGLContext {
 
 impl<'a> OpenGLContext {
     pub fn new(gl: glfw::Window) -> Box<OpenGLContext> {
-        Box::from(OpenGLContext { gl: gl })
+        Box::from(OpenGLContext { gl })
     }
 }
 
@@ -20,9 +20,9 @@ impl<'a> ContextWrapper<'a> for OpenGLContext {
         debug!("OpenGL context loading symbols via gl.get_proc_address_raw()");
         gl::load_with(|s| self.gl.glfw.get_proc_address_raw(s));
         if !gl::ClearColor::is_loaded() {
-            return Err(SymbolLoadError::new("Failed to load OpenGL symbols"));
+            Err(SymbolLoadError::new("Failed to load OpenGL symbols"))
         } else {
-            return Ok(());
+            Ok(())
         }
     }
 
@@ -30,7 +30,7 @@ impl<'a> ContextWrapper<'a> for OpenGLContext {
         self
     }
 
-    fn create_window_surface(&mut self, glfw_w: glfw::Window) -> Option<Arc<Surface<glfw::Window>>> {
+    fn create_window_surface(&mut self, _glfw_w: glfw::Window) -> Option<Arc<Surface<glfw::Window>>> {
         None
     }
 

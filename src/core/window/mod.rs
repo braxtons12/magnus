@@ -28,7 +28,7 @@ pub struct WindowProps {
 
 impl WindowProps {
     pub fn new(title: String, width: Option<u32>, height: Option<u32>) -> WindowProps {
-        WindowProps { title: title, width: width.unwrap_or(1280), height: height.unwrap_or(720) }
+        WindowProps { title, width: width.unwrap_or(1280), height: height.unwrap_or(720) }
     }
 }
 
@@ -140,7 +140,7 @@ pub(crate) trait WindowBehavior<'a> {
 
 static mut GLFW_S: Option<glfw::Glfw> = None;
 
-fn create<'a>(props: WindowProps, settings: Settings) -> Option<Box<dyn WindowBehavior<'static>>> {
+fn create(props: WindowProps, settings: Settings) -> Option<Box<dyn WindowBehavior<'static>>> {
     if cfg!(windows) {
         unsafe {
             if GLFW_S.is_none() {
@@ -172,7 +172,7 @@ fn create<'a>(props: WindowProps, settings: Settings) -> Option<Box<dyn WindowBe
         debug!("Getting window RenderContext");
         let render_context = window.render_context();
         debug!("Calling contructor for Win32Window");
-        return Some(Box::from(Win32Window::new(props, application::MagnusApplication::on_event, 0, window, render_context, events, settings.graphics().mode(), settings.graphics().vulkan_id())));
+        Some(Box::from(Win32Window::new(props, application::MagnusApplication::on_event, 0, window, render_context, events, settings.graphics().mode(), settings.graphics().vulkan_id())))
     } else if cfg!(unix) {
         unsafe {
             if GLFW_S.is_none() {
@@ -199,8 +199,8 @@ fn create<'a>(props: WindowProps, settings: Settings) -> Option<Box<dyn WindowBe
         }
         
         let render_context = window.render_context();
-        return Some(Box::from(LinuxWindow::new(props, application::MagnusApplication::on_event, 0, window, render_context, events, settings.graphics().mode(), settings.graphics().vulkan_id())));
+        Some(Box::from(LinuxWindow::new(props, application::MagnusApplication::on_event, 0, window, render_context, events, settings.graphics().mode(), settings.graphics().vulkan_id())))
     } else {
-        return None;
+        None
     }
 }

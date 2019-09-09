@@ -25,10 +25,10 @@ impl<'a> MagnusApplication<'a> {
         let props = WindowProps::new(name.clone(), Some(width as u32), Some(height as u32));
         let mut sets = Settings::new(&name);
         sets.set_graphics_mode(GraphicsMode::Vulkan);
-        MagnusApplication { name: name, running: false, settings: sets, window: Window::new(props, sets) }
+        MagnusApplication { name, running: false, settings: sets, window: Window::new(props, sets) }
     }
 
-    pub fn run(&mut self) -> () {
+    pub fn run(&mut self)  {
 
         debug!("Application {} Started", self.name);
         if self.settings.graphics().mode() == GraphicsMode::Vulkan {

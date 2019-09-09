@@ -1,3 +1,5 @@
+#![allow(unconditional_recursion)]
+
 pub mod opengl;
 pub mod directx;
 pub mod vulkan;

@@ -10,7 +10,8 @@ extern crate libc;
 extern crate gl;
 extern crate glfw;
 extern crate vulkano;
-extern crate vulkano_glfw_v2;
+extern crate vulkano_glfw_v2 as vulkano_glfw;
+extern crate dxplr;
 
 #[macro_use]
 pub mod core;

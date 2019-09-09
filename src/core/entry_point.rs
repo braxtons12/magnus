@@ -1,4 +1,4 @@
-#[allow(improper_ctypes)]
+#![allow(improper_ctypes)]
 
 use crate::core::application::MagnusApplication;
 

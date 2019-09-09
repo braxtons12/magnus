@@ -2,6 +2,7 @@ use std::any::Any;
 use std::sync::Arc;
 
 use vulkano::swapchain::Surface;
+use dxplr;
 
 use crate::core::graphics::{ContextWrapper, SymbolLoadError, DeviceCreationError};
 
@@ -11,7 +12,7 @@ pub struct DirectXContext {
 
 impl<'a> DirectXContext {
     pub fn new( gl: glfw::Window) -> Box<DirectXContext> {
-        Box::from(DirectXContext { gl: gl })
+        Box::from(DirectXContext { gl })
     }
 }
 
@@ -20,9 +21,9 @@ impl<'a> ContextWrapper<'a> for DirectXContext {
         debug!("DirectX context loading symbols with __");
         gl::load_with(|s| self.gl.glfw.get_proc_address_raw(s));
         if !gl::ClearColor::is_loaded() {
-            return Err(SymbolLoadError::new("Failed to load OpenGL symbols"));
+            Err(SymbolLoadError::new("Failed to load OpenGL symbols"))
         } else {
-            return Ok(());
+            Ok(())
         }
     }
 
@@ -30,7 +31,7 @@ impl<'a> ContextWrapper<'a> for DirectXContext {
         self
     }
 
-    fn create_window_surface(&mut self, glfw_w: glfw::Window) -> Option<Arc<Surface<glfw::Window>>> {
+    fn create_window_surface(&mut self, _glfw_w: glfw::Window) -> Option<Arc<Surface<glfw::Window>>> {
         None
     }
 

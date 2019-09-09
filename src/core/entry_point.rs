@@ -1,6 +1,5 @@
 #[allow(improper_ctypes)]
 
-use crate::core;
 use crate::core::application::MagnusApplication;
 
 #[no_mangle]

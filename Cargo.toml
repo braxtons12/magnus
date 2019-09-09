@@ -5,9 +5,13 @@ authors = ["Braxton Salyer <braxtonsalyer@gmail.com"]
 edition = "2018"
 
 [dependencies]
-log = "0.4"
-fern = { version = "0.5", features = ["colored"] }
-chrono = "0.4"
-libc = "0.2.62"
-glfw = { version = "0.32.0", features = ["vulkan", "image"] }
-gl = "0.13.0"
+log = "^0.4"
+fern = { version = "^0.5", features = ["colored"] }
+chrono = "^0.4"
+serde = { version = "^1.0.99", features = ["derive"] }
+serde_json = "^1.0.40"
+libc = "^0.2.62"
+glfw = { version = "^0.32.0", features = ["vulkan", "image"] }
+gl = "^0.13.0"
+vulkano = "^0.14.0"
+vulkano-glfw-v2 = "^0.1.0"

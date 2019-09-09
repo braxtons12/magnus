@@ -7,12 +7,15 @@
  **/
 use crate::events::event::*;
 use crate::events::event::{Event, EventDispatcher};
+use crate::core::settings::Settings;
+use crate::core::settings::GraphicsMode;
 use crate::core::window::*;
 
 #[repr(C)]
 pub struct MagnusApplication<'a> {
     name: String,
     running: bool,
+    settings: Settings,
     window: Window<'a>
 }
 
@@ -20,20 +23,28 @@ impl<'a> MagnusApplication<'a> {
 
     pub fn new(name: String, width: i32, height: i32) -> MagnusApplication<'static> {
         let props = WindowProps::new(name.clone(), Some(width as u32), Some(height as u32));
-        MagnusApplication { name: name, running: false, window: Window::new(props) }
+        let mut sets = Settings::new(&name);
+        sets.set_graphics_mode(GraphicsMode::Vulkan);
+        MagnusApplication { name: name, running: false, settings: sets, window: Window::new(props, sets) }
     }
 
     pub fn run(&mut self) -> () {
 
         debug!("Application {} Started", self.name);
-
-        self.window.get_context().load_symbols().expect("Failed to load graphics context symbols");
+        if self.settings.graphics().mode() == GraphicsMode::Vulkan {
+            self.window.create_vulkan_devices().expect("Failed to create Vulkan devices");
+        }
+        if self.settings.graphics().mode() == GraphicsMode::OpenGL {
+            self.window.get_context().load_symbols().expect("Failed to load graphics context symbols");
+        }
         'main: loop {
                 debug!("Window width is {}", self.window.get_width());
                 debug!("Changing clear color");
                 unsafe {
-                    gl::ClearColor(1.0, 0.0, 1.0, 1.0);
-                    gl::Clear(gl::COLOR_BUFFER_BIT);
+                    if self.settings.graphics().mode() == GraphicsMode::OpenGL {
+                        gl::ClearColor(1.0, 0.0, 1.0, 1.0);
+                        gl::Clear(gl::COLOR_BUFFER_BIT);
+                    }
                 }
                 if self.window.on_update() {
                     break 'main;

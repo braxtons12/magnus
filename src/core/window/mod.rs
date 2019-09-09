@@ -1,12 +1,16 @@
+use crate::core::graphics::DeviceCreationError;
+use std::sync::mpsc::Receiver;
+
+use glfw;
+use glfw::Context;
+
 use crate::core::application;
+use crate::core::settings::Settings;
+use crate::core::settings::GraphicsMode;
 use crate::events::event::{Event, EventCallbackFn};
 use crate::core::graphics;
 use win32::*;
 use linux::*;
-
-use glfw;
-use glfw::Context;
-use std::sync::mpsc::Receiver;
 
 pub(crate) mod win32;
 pub(crate) mod linux;
@@ -36,11 +40,10 @@ pub struct Window<'a> {
 }
 
 impl<'a> Window<'a> {
-    pub fn new(props: WindowProps) -> Window<'static> {
-        let mut win = create(props).expect("Error Creating Window");
+    pub fn new(props: WindowProps, settings: Settings) -> Window<'static> {
+        let win = create(props, settings).expect("Error Creating Window");
         debug!("Success creating window: {}!", win.get_props().title);
-        let (nwin, _not) = win.get_native_window();
-        debug!("3. glfw reports context version is {}", nwin.unwrap().get_context_version());
+
         let x = Box::into_raw(win);
         unsafe {
             let y = x.as_mut().unwrap();
@@ -104,13 +107,6 @@ impl<'a> Window<'a> {
         }
     }
 
-    //when win32 window udpated for alt wrapper (sdl??) or raw win32, update to match
-    pub fn get_native_window(&mut self) -> (Option<&mut glfw::Window>, Option<&mut glfw::Window>) {
-        unsafe {
-            self.window.as_mut().unwrap().get_native_window()
-        }
-    }
-
     pub fn on_update(&mut self) -> bool {
         unsafe {
             self.window.as_mut().unwrap().on_update()
@@ -119,6 +115,12 @@ impl<'a> Window<'a> {
 
     pub fn get_context(&mut self) -> &mut graphics::Context<'a> {
         &mut self.context
+    }
+
+    pub fn create_vulkan_devices(&mut self) -> Result<(), DeviceCreationError> {
+        unsafe {
+            self.window.as_mut().unwrap().get_context_wrapper().create_devices()
+        }
     }
 }
 
@@ -132,14 +134,13 @@ pub(crate) trait WindowBehavior<'a> {
     fn get_vsync(&self) -> u8;
     fn set_vsync(&mut self, interval: u8);
     fn get_props(&self) -> & WindowProps;
-    fn get_native_window(&mut self) -> (Option<&mut glfw::Window>, Option<&mut glfw::Window>); //when win32 window updated for alt wrapper (sdl??)/ or raw win32, update to match
     fn on_update(&mut self) -> bool;
-    fn get_context_wrapper(&mut self) -> &mut dyn graphics::ContextWrapper;
+    fn get_context_wrapper(&mut self) -> &mut dyn graphics::ContextWrapper<'a>;
 }
 
 static mut GLFW_S: Option<glfw::Glfw> = None;
 
-fn create<'a>(props: WindowProps) -> Option<Box<dyn WindowBehavior<'static>>> {
+fn create<'a>(props: WindowProps, settings: Settings) -> Option<Box<dyn WindowBehavior<'static>>> {
     if cfg!(windows) {
         unsafe {
             if GLFW_S.is_none() {
@@ -152,15 +153,26 @@ fn create<'a>(props: WindowProps) -> Option<Box<dyn WindowBehavior<'static>>> {
         let events: Receiver<(f64, glfw::WindowEvent)>;
         let x: (glfw::Window, Receiver<(f64, glfw::WindowEvent)>);
         unsafe {
+            if settings.graphics().mode() == GraphicsMode::Vulkan {
+                debug!("Settings ClientApi WindowHint to NoApi for vulkan compatibility");
+                GLFW_S.unwrap().window_hint(glfw::WindowHint::ClientApi(glfw::ClientApiHint::NoApi));
+            }
+            debug!("Creating glfw window");
             x = GLFW_S.unwrap().create_window(props.width, props.height, props.title.as_str(), glfw::WindowMode::Windowed)
                 .expect("Failed to create GLFW window.");
         }
         window = x.0;
         events = x.1;
         window.set_all_polling(true);
-        window.make_current();
-
-        return Some(Box::from(Win32Window::new(props, application::MagnusApplication::on_event, 0, window, events)));
+        if settings.graphics().mode() == GraphicsMode::OpenGL {
+            debug!("Making window the current OpenGL context");
+            window.make_current();
+        }
+        
+        debug!("Getting window RenderContext");
+        let render_context = window.render_context();
+        debug!("Calling contructor for Win32Window");
+        return Some(Box::from(Win32Window::new(props, application::MagnusApplication::on_event, 0, window, render_context, events, settings.graphics().mode(), settings.graphics().vulkan_id())));
     } else if cfg!(unix) {
         unsafe {
             if GLFW_S.is_none() {
@@ -173,15 +185,21 @@ fn create<'a>(props: WindowProps) -> Option<Box<dyn WindowBehavior<'static>>> {
         let events: Receiver<(f64, glfw::WindowEvent)>;
         let x: (glfw::Window, Receiver<(f64, glfw::WindowEvent)>);
         unsafe {
+            if settings.graphics().mode() == GraphicsMode::Vulkan {
+                GLFW_S.unwrap().window_hint(glfw::WindowHint::ClientApi(glfw::ClientApiHint::NoApi));
+            }
             x = GLFW_S.unwrap().create_window(props.width, props.height, props.title.as_str(), glfw::WindowMode::Windowed)
                 .expect("Failed to create GLFW window.");
         }
         window = x.0;
         events = x.1;
         window.set_all_polling(true);
-        window.make_current();
+        if settings.graphics().mode() == GraphicsMode::OpenGL {
+            window.make_current();
+        }
         
-        return Some(Box::from(LinuxWindow::new(props, application::MagnusApplication::on_event, 0, window, events)));
+        let render_context = window.render_context();
+        return Some(Box::from(LinuxWindow::new(props, application::MagnusApplication::on_event, 0, window, render_context, events, settings.graphics().mode(), settings.graphics().vulkan_id())));
     } else {
         return None;
     }

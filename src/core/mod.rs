@@ -3,6 +3,7 @@ pub mod core_macros;
 pub mod entry_point;
 pub mod window;
 pub mod graphics;
+pub mod settings;
 
 /**
  * Logger initialization function for debug builds

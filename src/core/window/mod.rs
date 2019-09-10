@@ -153,7 +153,7 @@ fn create(props: WindowProps, settings: Settings) -> Option<Box<dyn WindowBehavi
         let events: Receiver<(f64, glfw::WindowEvent)>;
         let x: (glfw::Window, Receiver<(f64, glfw::WindowEvent)>);
         unsafe {
-            if settings.graphics().mode() == GraphicsMode::Vulkan {
+            if settings.graphics().mode() == GraphicsMode::Vulkan || settings.graphics().mode() == GraphicsMode::DirectX {
                 debug!("Settings ClientApi WindowHint to NoApi for vulkan compatibility");
                 GLFW_S.unwrap().window_hint(glfw::WindowHint::ClientApi(glfw::ClientApiHint::NoApi));
             }

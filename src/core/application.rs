@@ -24,7 +24,8 @@ impl<'a> MagnusApplication<'a> {
     pub fn new(name: String, width: i32, height: i32) -> MagnusApplication<'static> {
         let props = WindowProps::new(name.clone(), Some(width as u32), Some(height as u32));
         let mut sets = Settings::new(&name);
-        sets.set_graphics_mode(GraphicsMode::Vulkan);
+        //sets.set_graphics_mode(GraphicsMode::Vulkan);
+        sets.set_graphics_mode(GraphicsMode::DirectX);
         MagnusApplication { name, running: false, settings: sets, window: Window::new(props, sets) }
     }
 

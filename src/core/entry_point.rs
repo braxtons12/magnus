@@ -4,7 +4,7 @@ use crate::core::application::MagnusApplication;
 
 #[no_mangle]
 extern "Rust" {
-    pub fn create_application() -> MagnusApplication<'static>;
+    pub fn create_application<'a>() -> MagnusApplication<'a>;
 }
 
 #[macro_export]

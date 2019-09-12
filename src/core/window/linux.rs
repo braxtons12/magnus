@@ -4,55 +4,36 @@ use std::sync::Arc;
 
 use vulkano::swapchain::Surface;
 
-use crate::core::settings::GraphicsMode;
 use crate::core::window::*;
-use crate::core::graphics::ContextWrapper;
-use crate::core::graphics::opengl::OpenGLContext;
-use crate::core::graphics::vulkan::VulkanContext;
 use crate::events::key_events::*;
 use crate::events::mouse_events::*;
 use crate::events::window_events::*;
 use crate::events::event::EventCallbackFn;
 
-pub(crate) struct LinuxWindow<'a> {
+pub(crate) struct LinuxWindow {
     props: WindowProps,
     callback: EventCallbackFn,
     vsync: u8,
-    glfw_context: glfw::Glfw,
-    glfw_render_context: glfw::RenderContext,
-    vulkan_surface: Option<Arc<Surface<glfw::Window>>>,
+    gl: glfw::Glfw,
+    glfw_render_context: Option<glfw::RenderContext>,
+    glfw_w: Option<glfw::Window>,
     event_receiver: Receiver<(f64, glfw::WindowEvent)>,
-    context_wrapper: &'a mut (dyn ContextWrapper<'a> + 'a)
+    vulkan_surface: Option<Arc<Surface<glfw::Window>>>
 }
 
-impl<'a> LinuxWindow<'a> {
+impl<'a> LinuxWindow {
 
-    pub fn new(props: WindowProps, callback: EventCallbackFn, vsync: u8, window: glfw::Window, 
-               render_context: glfw::RenderContext, 
-               events: Receiver<(f64, glfw::WindowEvent)>, mode: GraphicsMode, 
-               vulkan_id: usize) -> LinuxWindow<'static> 
+    pub fn new(props: WindowProps, callback: EventCallbackFn, vsync: u8, gl: glfw::Glfw, 
+                window: Option<glfw::Window>, 
+                render_context: Option<glfw::RenderContext>, 
+               events: Receiver<(f64, glfw::WindowEvent)>,
+               surface: Option<Arc<Surface<glfw::Window>>>) -> LinuxWindow
     {
-        if mode == GraphicsMode::OpenGL {
-            debug!("1 glfw reports context version is {}", window.get_context_version());
-        }
-        unsafe {
-            let context = window.glfw;
-            let mut surface: Option<Arc<Surface<glfw::Window>>> = None;
-            let y: &mut dyn ContextWrapper = match mode {
-                GraphicsMode::DirectX => panic!("Cannot use DirectX on Linux"),
-                GraphicsMode::OpenGL  => Box::into_raw(OpenGLContext::new(window)).as_mut().unwrap(),
-                GraphicsMode::Vulkan  => {
-                    let z = Box::into_raw(VulkanContext::new(window.glfw, vulkan_id)).as_mut().unwrap();
-                    surface = Some(z.create_window_surface(window).unwrap());
-                    z
-                }
-            };
-            LinuxWindow { props, callback, vsync,
-            glfw_context: context,
-            glfw_render_context: render_context,
-            vulkan_surface: surface,
-            event_receiver: events, context_wrapper: y}
-        }
+        LinuxWindow { props, callback, vsync, gl,
+        glfw_w: window,
+        glfw_render_context: render_context,
+        event_receiver: events,
+        vulkan_surface: surface }
     }
 
     pub fn callback(&self, e: &mut (dyn Event)) -> bool {
@@ -60,7 +41,7 @@ impl<'a> LinuxWindow<'a> {
     }
 }
 
-impl<'a> WindowBehavior<'a> for LinuxWindow<'a> {
+impl<'a> WindowBehavior<'a> for LinuxWindow {
 
     fn get_width(&self) -> u32 {
         self.props.width
@@ -89,19 +70,19 @@ impl<'a> WindowBehavior<'a> for LinuxWindow<'a> {
     fn set_vsync(&mut self, interval: u8) {
         match interval {
             0 => {
-                self.glfw_context.set_swap_interval(glfw::SwapInterval::None);
+                self.gl.set_swap_interval(glfw::SwapInterval::None);
                 self.vsync = 0;
             }
             1 => {
-                self.glfw_context.set_swap_interval(glfw::SwapInterval::Adaptive);
+                self.gl.set_swap_interval(glfw::SwapInterval::Adaptive);
                 self.vsync = 1;
             }
             2 => {
-                self.glfw_context.set_swap_interval(glfw::SwapInterval::Sync(1));
+                self.gl.set_swap_interval(glfw::SwapInterval::Sync(1));
                 self.vsync = 2;
             }
             _ => {
-                self.glfw_context.set_swap_interval(glfw::SwapInterval::None);
+                self.gl.set_swap_interval(glfw::SwapInterval::None);
                 self.vsync = 0;
             }
         }
@@ -112,7 +93,7 @@ impl<'a> WindowBehavior<'a> for LinuxWindow<'a> {
     }
 
     fn on_update(&mut self) -> bool {
-        self.glfw_context.poll_events();
+        self.gl.poll_events();
         let mut should_close = false;
         for (_, event) in glfw::flush_messages(&self.event_receiver) {
             println!("{:?}", event);
@@ -163,11 +144,9 @@ impl<'a> WindowBehavior<'a> for LinuxWindow<'a> {
             }
             
         }
-        self.glfw_render_context.swap_buffers();
+        if self.glfw_render_context.is_some() {
+            self.glfw_render_context.as_mut().unwrap().swap_buffers();
+        }
         should_close
-    }
-
-    fn get_context_wrapper(&mut self) -> &mut dyn ContextWrapper<'a> {
-       self.context_wrapper
     }
 }

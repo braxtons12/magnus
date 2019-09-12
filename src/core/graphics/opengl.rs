@@ -6,19 +6,19 @@ use vulkano::swapchain::Surface;
 use crate::core::graphics::{ContextWrapper, SymbolLoadError, DeviceCreationError};
 
 pub struct OpenGLContext {
-    gl: glfw::Window
+    gl: glfw::Glfw
 }
 
 impl<'a> OpenGLContext {
-    pub fn new(gl: glfw::Window) -> Box<OpenGLContext> {
-        Box::from(OpenGLContext { gl })
+    pub fn new(gl: glfw::Glfw) -> OpenGLContext {
+        OpenGLContext { gl }
     }
 }
 
 impl<'a> ContextWrapper<'a> for OpenGLContext {
     fn load_symbols(&mut self) -> Result<(), SymbolLoadError> {
         debug!("OpenGL context loading symbols via gl.get_proc_address_raw()");
-        gl::load_with(|s| self.gl.glfw.get_proc_address_raw(s));
+        gl::load_with(|s| self.gl.get_proc_address_raw(s));
         if !gl::ClearColor::is_loaded() {
             Err(SymbolLoadError::new("Failed to load OpenGL symbols"))
         } else {
@@ -34,7 +34,7 @@ impl<'a> ContextWrapper<'a> for OpenGLContext {
         None
     }
 
-    fn create_devices(&mut self) -> Result<(), DeviceCreationError> {
+    fn create_devices(&'a mut self) -> Result<(), DeviceCreationError> {
         Err(DeviceCreationError::NotVulkanContext)
     }
 }

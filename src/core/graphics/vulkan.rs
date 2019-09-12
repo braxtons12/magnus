@@ -20,15 +20,15 @@ pub struct VulkanContext<'a> {
 }
 
 impl <'a> VulkanContext<'a> {
-    pub fn new(gl: glfw::Glfw, id: usize) -> Box<VulkanContext<'static>> {
+    pub fn new(gl: glfw::Glfw, id: usize) -> VulkanContext<'a> {
         let ext = &vulkano_glfw::get_required_instance_extensions(& gl)
         .expect("Error getting required vulkan instance extensions");
 
         let inst = Instance::new(None, ext, None).expect("Could not create vulkan instance");
         debug!("vulkan instance references is: {}", Arc::strong_count(&inst));
 
-        Box::from(VulkanContext { gl, vulkan_device_id: id, vulkan_instance: inst, 
-        vulkan_physical_device: None, vulkan_device: None, vulkan_queue_familes: None })
+        VulkanContext { gl, vulkan_device_id: id, vulkan_instance: inst, 
+        vulkan_physical_device: None, vulkan_device: None, vulkan_queue_familes: None }
     }
     
     pub fn create_window_surface(&mut self, glfw_w: glfw::Window) -> Option<Arc<Surface<glfw::Window>>> {

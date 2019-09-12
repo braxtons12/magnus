@@ -13,7 +13,7 @@ use dxplr::dxgi::{ IFactory2, Factory6, ISwapChain, SwapChain4};
 use crate::core::graphics::{ContextWrapper, SymbolLoadError, DeviceCreationError};
 
 pub struct DirectXContext {
-    gl: glfw::Window,
+    gl: glfw::Glfw,
     dx_debug: Debug,
     dx_device: Device,
     dx_command_alloc: CommandAllocator,
@@ -29,7 +29,7 @@ pub struct DirectXContext {
 }
 
 impl<'a> DirectXContext {
-    pub fn new( gl: glfw::Window) -> Box<DirectXContext> {
+    pub fn new( glfw_w: glfw::Window) -> (DirectXContext, glfw::Window) {
         let d3d12_debug = {
             let debug = d3d12::get_debug_interface::<d3d12::Debug>().unwrap();
             debug.enable_debug_layer();
@@ -44,10 +44,10 @@ impl<'a> DirectXContext {
                             &command_alloc, None).unwrap();
         command_list.close();
         let dxgi_factory = dxgi::create_dxgi_factory2::<dxgi::Factory6>(None).unwrap();
-        let mut window_size = gl.get_framebuffer_size();
-        let dpi_factor = gl.get_content_scale();
+        let mut window_size = glfw_w.get_framebuffer_size();
+        let dpi_factor = glfw_w.get_content_scale();
         window_size = ((window_size.0 as f32 * dpi_factor.0) as i32, (window_size.1 as f32 * dpi_factor.1) as i32);
-        let swapchain = dxgi_factory.create_swap_chain_for_hwnd(&command_queue, &gl.get_win32_window(),
+        let swapchain = dxgi_factory.create_swap_chain_for_hwnd(&command_queue, &glfw_w.get_win32_window(),
                             &dxgi::SwapChainDesc1::new()
                             .width(window_size.0 as u32)
                             .height(window_size.1 as u32)
@@ -68,23 +68,18 @@ impl<'a> DirectXContext {
         let event = dxplr::EventHandle::new();
 
 
-        Box::from(DirectXContext { gl, dx_debug: d3d12_debug, dx_device: device, dx_command_alloc: command_alloc, 
-                                    dx_command_queue: command_queue, dx_graphics_command_list: command_list,
-                                    dx_descriptor_heap: rtv_heap, dx_gpu_handle: gpu_handle,
-                                    dx_cpu_handle: cpu_handle, dx_fence: fence, dx_event_handle: event,
-                                    dx_dxgi_factory: dxgi_factory, dx_dxgi_swapchain: swapchain })
+        (DirectXContext { gl: glfw_w.glfw, dx_debug: d3d12_debug, dx_device: device, dx_command_alloc: command_alloc,
+                        dx_command_queue: command_queue, dx_graphics_command_list: command_list,
+                        dx_descriptor_heap: rtv_heap, dx_gpu_handle: gpu_handle,
+                        dx_cpu_handle: cpu_handle, dx_fence: fence, dx_event_handle: event,
+                        dx_dxgi_factory: dxgi_factory, dx_dxgi_swapchain: swapchain }, glfw_w)
     }
 }
 
 impl<'a> ContextWrapper<'a> for DirectXContext {
     fn load_symbols(&mut self) -> Result<(), SymbolLoadError> {
         debug!("DirectX context loading symbols with __");
-        gl::load_with(|s| self.gl.glfw.get_proc_address_raw(s));
-        if !gl::ClearColor::is_loaded() {
-            Err(SymbolLoadError::new("Failed to load OpenGL symbols"))
-        } else {
-            Ok(())
-        }
+        Ok(())
     }
 
     fn as_any(&'a mut self) -> &'a mut (dyn Any +'a) {

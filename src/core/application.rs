@@ -21,22 +21,23 @@ pub struct MagnusApplication<'a> {
 
 impl<'a> MagnusApplication<'a> {
 
-    pub fn new(name: String, width: i32, height: i32) -> MagnusApplication<'static> {
+    pub fn new(name: String, width: i32, height: i32) -> MagnusApplication<'a> {
         let props = WindowProps::new(name.clone(), Some(width as u32), Some(height as u32));
         let mut sets = Settings::new(&name);
         //sets.set_graphics_mode(GraphicsMode::Vulkan);
-        sets.set_graphics_mode(GraphicsMode::DirectX);
-        MagnusApplication { name, running: false, settings: sets, window: Window::new(props, sets) }
+        //sets.set_graphics_mode(GraphicsMode::DirectX);
+
+        MagnusApplication { name, running: true, settings: sets, window: Window::new(props, sets)}
     }
 
     pub fn run(&mut self)  {
 
         debug!("Application {} Started", self.name);
-        if self.settings.graphics().mode() == GraphicsMode::Vulkan {
-            self.window.create_vulkan_devices().expect("Failed to create Vulkan devices");
-        }
         if self.settings.graphics().mode() == GraphicsMode::OpenGL {
             self.window.get_context().load_symbols().expect("Failed to load graphics context symbols");
+        }
+        if self.settings.graphics().mode() == GraphicsMode::Vulkan {
+            self.window.create_vulkan_devices().expect("Failed to create vulkan devices");
         }
         'main: loop {
                 debug!("Window width is {}", self.window.get_width());

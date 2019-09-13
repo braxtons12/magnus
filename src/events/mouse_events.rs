@@ -247,4 +247,3 @@ impl Event for MouseScrolledEvent {
         &mut(self.handled)
     }   
 }
-

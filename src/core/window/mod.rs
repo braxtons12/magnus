@@ -12,7 +12,7 @@ use crate::core::settings::{ Settings, GraphicsMode };
 use crate::events::event::{ Event, EventCallbackFn };
 use crate::core::graphics;
 use crate::core::graphics::{ ContextWrapper, opengl::OpenGLContext,
-                            directx::DirectXContext, vulkan::VulkanContext };
+directx::DirectXContext, vulkan::VulkanContext };
 use win32::Win32Window;
 use linux::LinuxWindow;
 
@@ -69,8 +69,8 @@ impl<'a, 'b> Window<'a> {
                 GLFW_S.unwrap().window_hint(glfw::WindowHint::ClientApi(glfw::ClientApiHint::NoApi));
             }
             debug!("Creating glfw window");
-            x = GLFW_S.unwrap().create_window(props.width, props.height, props.title.as_str(), glfw::WindowMode::Windowed)
-                .expect("Failed to create GLFW window.");
+            x = GLFW_S.unwrap().create_window(props.width, props.height, props.title.as_str(), 
+                                              glfw::WindowMode::Windowed).expect("Failed to create GLFW window.");
         }
 
         window = x.0;
@@ -103,11 +103,11 @@ impl<'a, 'b> Window<'a> {
         };
 
         (Box::from(Win32Window::new(props, application::MagnusApplication::on_event, 0, gl, win,
-                          match settings.graphics().mode() {
-                GraphicsMode::OpenGL => Some(render_context),
-                _                    => None
-            },
-        events, surface)), graphics::Context::new(wrapper))
+                                    match settings.graphics().mode() {
+                                        GraphicsMode::OpenGL => Some(render_context),
+                                        _                    => None
+                                    },
+                                    events, surface)), graphics::Context::new(wrapper))
     }
 }
 
@@ -138,7 +138,7 @@ impl<'a, 'b> Window<'a> {
             }
             debug!("Creating glfw window");
             x = GLFW_S.unwrap().create_window(props.width, props.height, props.title.as_str(), glfw::WindowMode::Windowed)
-                      .expect("Failed to create GLFW window.");
+                .expect("Failed to create GLFW window.");
         }
 
         window = x.0;
@@ -166,11 +166,11 @@ impl<'a, 'b> Window<'a> {
         };
 
         (Box::from(LinuxWindow::new(props, application::MagnusApplication::on_event, 0, gl, win,
-                          match settings.graphics().mode() {
-                              GraphicsMode::OpenGL => Some(render_context),
-                              _                    => None
-                          },
-                          events, surface)), wrapper)
+                                    match settings.graphics().mode() {
+                                        GraphicsMode::OpenGL => Some(render_context),
+                                        _                    => None
+                                    },
+                                    events, surface)), wrapper)
     }
 }
 

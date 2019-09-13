@@ -115,7 +115,7 @@ impl<'a, 'b> Window<'a> {
 impl<'a, 'b> Window<'a> {
     pub fn new(props: WindowProps, settings: Settings) -> Window<'a> {
         let (window, context) = Window::create(props, settings);
-        debug!("Success creating window: {}!", props.title);
+        debug!("Success creating window!");
 
         Window{ window, context }
     }
@@ -170,7 +170,7 @@ impl<'a, 'b> Window<'a> {
                                         GraphicsMode::OpenGL => Some(render_context),
                                         _                    => None
                                     },
-                                    events, surface)), wrapper)
+                                    events, surface)), graphics::Context::new(wrapper))
     }
 }
 

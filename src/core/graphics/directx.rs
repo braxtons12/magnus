@@ -2,16 +2,23 @@ use std::any::Any;
 use std::sync::Arc;
 
 use vulkano::swapchain::Surface;
+
+#[cfg(windows)]
 use dxplr;
+#[cfg(windows)]
 use dxplr::d3d::IBlob;
+#[cfg(windows)]
 use dxplr::d3d12::{ ICommandAllocator, CommandAllocator, ICommandQueue, CommandQueue, IDebug,
                     Debug, IDescriptorHeap, DescriptorHeap, GPUDescriptorHandle, CPUDescriptorHandle, IDevice, Device,
                     IFence, Fence, IGraphicsCommandList, GraphicsCommandList, IResource, Resource };
+#[cfg(windows)]
 use dxplr::{d3d, d3d12, dxgi, d3d12_input_layout_descs, EventHandle, Interface};
+#[cfg(windows)]
 use dxplr::dxgi::{ IFactory2, Factory6, ISwapChain, SwapChain4};
 
 use crate::core::graphics::{ContextWrapper, SymbolLoadError, DeviceCreationError};
 
+#[cfg(windows)]
 pub struct DirectXContext {
     gl: glfw::Glfw,
     dx_debug: Debug,
@@ -28,6 +35,7 @@ pub struct DirectXContext {
     dx_dxgi_swapchain: SwapChain4,
 }
 
+#[cfg(windows)]
 impl<'a> DirectXContext {
     pub fn new( glfw_w: glfw::Window) -> (DirectXContext, glfw::Window) {
         let d3d12_debug = {
@@ -73,6 +81,18 @@ impl<'a> DirectXContext {
                         dx_descriptor_heap: rtv_heap, dx_gpu_handle: gpu_handle,
                         dx_cpu_handle: cpu_handle, dx_fence: fence, dx_event_handle: event,
                         dx_dxgi_factory: dxgi_factory, dx_dxgi_swapchain: swapchain }, glfw_w)
+    }
+}
+
+#[cfg(unix)]
+pub struct DirectXContext {
+
+}
+
+#[cfg(unix)]
+impl DirectXContext {
+    pub fn new(glfw_w: glfw::Window) -> (DirectXContext, glfw::Window) {
+        (DirectXContext{}, glfw_w)
     }
 }
 

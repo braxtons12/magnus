@@ -11,6 +11,8 @@ extern crate gl;
 extern crate glfw;
 extern crate vulkano;
 extern crate vulkano_glfw_v2 as vulkano_glfw;
+
+#[cfg(windows)]
 extern crate dxplr;
 
 #[macro_use]

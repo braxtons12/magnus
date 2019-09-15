@@ -1,5 +1,5 @@
 /**User MUST declare #![no_main] in their main.rs
- * 
+ *
  * User MUST implement this function for a struct serving as their app
  * #[no_mangle]
  * pub fn create_application() -> impl Box<Application>;
@@ -22,9 +22,9 @@ pub struct MagnusApplication<'a> {
 impl<'a> MagnusApplication<'a> {
 
     pub fn new(name: String, width: i32, height: i32) -> MagnusApplication<'a> {
-        let props = WindowProps::new(name.clone(), Some(width as u32), Some(height as u32));
         let mut sets = Settings::new(&name);
-        //sets.set_graphics_mode(GraphicsMode::Vulkan);
+        let props = WindowProps::new(name.clone(), Some(width as u32), Some(height as u32), Some(sets.graphics().mode()));
+        sets.set_graphics_mode(GraphicsMode::Vulkan);
         //sets.set_graphics_mode(GraphicsMode::DirectX);
 
         MagnusApplication { name, running: true, settings: sets, window: Window::new(props, sets)}
@@ -81,7 +81,7 @@ impl<'a> MagnusApplication<'a> {
     }
 
     pub fn on_event(e:& mut (dyn Event)) -> bool {
-        
+
         debug!("Processing event e: {}", e);
         true
     }

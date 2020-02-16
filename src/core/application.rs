@@ -9,50 +9,147 @@ use crate::events::event::*;
 use crate::events::event::{Event, EventDispatcher};
 use crate::core::settings::Settings;
 use crate::core::settings::GraphicsMode;
+use crate::core::graphics;
+use crate::core::graphics::opengl::OpenGLContext;
+use crate::core::graphics::vulkan::VulkanContext;
+#[cfg(windows)]
+use crate::core::graphics::directx::DirectXContext;
 use crate::core::window::*;
+use crate::core::layers::*;
 
 #[repr(C)]
-pub struct MagnusApplication<'a> {
+pub struct MagnusApplication<T: graphics::context::ContextLimiter> {
     name: String,
     running: bool,
     settings: Settings,
-    window: Window<'a>
+    window: Window<T>,
+    layer_stack: LayerStack
 }
 
-impl<'a> MagnusApplication<'a> {
+impl MagnusApplication<OpenGLContext> {
+    pub fn new(name: String, settings: Settings) -> MagnusApplication<OpenGLContext> {
+        let props = WindowProps::new(name.clone(), Some(settings.graphics().size()), settings.graphics().mode());
 
-    pub fn new(name: String, width: i32, height: i32) -> MagnusApplication<'a> {
-        let mut sets = Settings::new(&name);
-        let props = WindowProps::new(name.clone(), Some(width as u32), Some(height as u32), Some(sets.graphics().mode()));
-        sets.set_graphics_mode(GraphicsMode::Vulkan);
-        //sets.set_graphics_mode(GraphicsMode::DirectX);
-
-        MagnusApplication { name, running: true, settings: sets, window: Window::new(props, sets)}
+        MagnusApplication {
+            name,
+            running: true,
+            settings,
+            window: Window::<OpenGLContext>::new(props),
+            layer_stack: LayerStack::new(None, None) }
     }
 
     pub fn run(&mut self)  {
 
         debug!("Application {} Started", self.name);
-        if self.settings.graphics().mode() == GraphicsMode::OpenGL {
-            self.window.get_context().load_symbols().expect("Failed to load graphics context symbols");
-        }
-        if self.settings.graphics().mode() == GraphicsMode::Vulkan {
-            self.window.create_vulkan_devices().expect("Failed to create vulkan devices");
-        }
+        self.window.get_context().api_context().load_symbols().expect("Failed to load graphics context symbols");
         'main: loop {
-                debug!("Window width is {}", self.window.get_width());
-                debug!("Changing clear color");
-                unsafe {
-                    if self.settings.graphics().mode() == GraphicsMode::OpenGL {
-                        gl::ClearColor(1.0, 0.0, 1.0, 1.0);
-                        gl::Clear(gl::COLOR_BUFFER_BIT);
-                    }
+            debug!("Window width is {}", self.window.get_width());
+            debug!("Changing clear color");
+            unsafe {
+                if self.settings.graphics().mode() == GraphicsMode::OpenGL {
+                    gl::ClearColor(1.0, 0.0, 1.0, 1.0);
+                    gl::Clear(gl::COLOR_BUFFER_BIT);
                 }
-                if self.window.on_update() {
-                    break 'main;
-                }
+            }
+            for item in self.layer_stack.iter_mut() {
+                item.on_update();
+            }
+            if self.window.on_update() {
+                break 'main;
+            }
         }
+    }
 }
+
+impl MagnusApplication<VulkanContext> {
+    pub fn new(name: String, settings: Settings) -> MagnusApplication<VulkanContext> {
+        let props = WindowProps::new(name.clone(), Some(settings.graphics().size()), settings.graphics().mode());
+
+        MagnusApplication {
+            name,
+            running: true,
+            settings,
+            window: Window::<VulkanContext>::new(props, settings.graphics().vulkan_id()),
+            layer_stack: LayerStack::new(None, None) }
+    }
+
+    pub fn run(&mut self)  {
+
+        debug!("Application {} Started", self.name);
+        'main: loop {
+            debug!("Window width is {}", self.window.get_width());
+            debug!("Changing clear color");
+            unsafe {
+                if self.settings.graphics().mode() == GraphicsMode::OpenGL {
+                    gl::ClearColor(1.0, 0.0, 1.0, 1.0);
+                    gl::Clear(gl::COLOR_BUFFER_BIT);
+                }
+            }
+            for item in self.layer_stack.iter_mut() {
+                item.on_update();
+            }
+            if self.window.on_update() {
+                break 'main;
+            }
+        }
+    }
+}
+
+#[cfg(windows)]
+impl MagnusApplication<DirectXContext> {
+    pub fn new(name: String, width: i32, height: i32, settings: Settings) -> MagnusApplication<DirectXContext> {
+        let props = WindowProps::new(name.clone(), Some(settings.graphics().size()), settings.graphics().mode());
+
+        MagnusApplication {
+            name,
+            running: true,
+            settings,
+            window: Window::<DirectXContext>::new(props),
+            layer_stack: LayerStack::new(None, None) }
+    }
+
+    pub fn run(&mut self)  {
+
+        debug!("Application {} Started", self.name);
+        'main: loop {
+            debug!("Window width is {}", self.window.get_width());
+            debug!("Changing clear color");
+            unsafe {
+                if self.settings.graphics().mode() == GraphicsMode::OpenGL {
+                    gl::ClearColor(1.0, 0.0, 1.0, 1.0);
+                    gl::Clear(gl::COLOR_BUFFER_BIT);
+                }
+            }
+            for item in self.layer_stack.iter_mut() {
+                item.on_update();
+            }
+            if self.window.on_update() {
+                break 'main;
+            }
+        }
+    }
+}
+
+impl<T: graphics::context::ContextLimiter> MagnusApplication<T> {
+    pub fn push_layer(&mut self, layer: Layer) {
+        self.layer_stack.push_layer(layer);
+    }
+
+    pub fn push_overlay(&mut self, layer: Layer) {
+        self.layer_stack.push_overlay(layer);
+    }
+
+    pub fn remove_layer(&mut self) -> Layer {
+        self.layer_stack.remove_layer()
+    }
+
+    pub fn remove_overlay(&mut self) -> Layer {
+        self.layer_stack.remove_overlay()
+    }
+
+    pub fn layer_stack(&mut self) -> &mut LayerStack {
+        &mut self.layer_stack
+    }
 
     #[inline(always)]
     pub fn get_running(&self) -> bool {
@@ -80,9 +177,18 @@ impl<'a> MagnusApplication<'a> {
         true
     }
 
-    pub fn on_event(e:& mut (dyn Event)) -> bool {
+    //pub fn on_event(e: &mut (dyn Event)) -> bool {
 
-        debug!("Processing event e: {}", e);
-        true
-    }
+    //debug!("Processing event e: {}", e);
+    //unsafe {
+    //let app = APP.as_mut().unwrap();
+    //'event: for item in app.layer_stack().iter_mut() {
+    //item.on_event(e);
+    //if * e.handled() {
+    //break 'event
+    //}
+    //}
+    //}
+    //true
+    //}
 }

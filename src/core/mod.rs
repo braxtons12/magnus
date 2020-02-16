@@ -4,6 +4,8 @@ pub mod entry_point;
 pub mod window;
 pub mod graphics;
 pub mod settings;
+pub mod layers;
+pub mod object;
 
 /**
  * Logger initialization function for debug builds

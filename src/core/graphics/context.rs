@@ -7,7 +7,7 @@ use crate::core::graphics::opengl::OpenGLContext;
 use crate::core::graphics::directx::DirectXContext;
 use crate::core::graphics::vulkan::VulkanContext;
 
-pub trait ContextLimiter {}
+pub trait ContextLimiter: Send {}
 
 impl ContextLimiter for OpenGLContext {}
 impl<'a> ContextLimiter for VulkanContext {}

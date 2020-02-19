@@ -15,11 +15,14 @@ pub struct AppTickEvent {
 impl AppTickEvent {
 
     pub fn new(message: String) -> AppTickEvent {
-        AppTickEvent { event_type: AppTick, 
-            category_flags: EventApplication as u32, 
-            msg: message, handled: false }
+        AppTickEvent { event_type: AppTick,
+        category_flags: EventApplication as u32,
+        msg: message, handled: false }
     }
 }
+
+unsafe impl std::marker::Send for AppTickEvent {}
+unsafe impl std::marker::Sync for AppTickEvent {}
 
 impl std::fmt::Display for AppTickEvent {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -46,8 +49,12 @@ impl Event for AppTickEvent {
         None
     }
 
-    fn handled(&mut self) -> &mut bool {
-        &mut(self.handled)
+    fn get_handled(&self) -> bool {
+        self.handled
+    }
+
+    fn set_handled(&mut self, handled: bool) {
+        self.handled = handled;
     }
 }
 
@@ -69,6 +76,9 @@ impl AppUpdateEvent {
     }
 }
 
+unsafe impl std::marker::Send for AppUpdateEvent {}
+unsafe impl std::marker::Sync for AppUpdateEvent {}
+
 impl std::fmt::Display for AppUpdateEvent {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "AppUpdateEvent: (event_type: {}, category_flags: {}, msg: {}, handled: {})",
@@ -80,6 +90,7 @@ impl Event for AppUpdateEvent {
 
     fn get_event_type(&self) -> EventType {
         self.event_type
+
     }
 
     fn get_category_flags(&self) -> u32 {
@@ -94,8 +105,12 @@ impl Event for AppUpdateEvent {
         None
     }
 
-    fn handled(&mut self) -> &mut bool {
-        &mut(self.handled)
+    fn get_handled(&self) -> bool {
+        self.handled
+    }
+
+    fn set_handled(&mut self, handled: bool) {
+        self.handled = handled;
     }
 }
 
@@ -115,6 +130,9 @@ impl AppRenderEvent {
         msg: message, handled: false }
     }
 }
+
+unsafe impl std::marker::Send for AppRenderEvent {}
+unsafe impl std::marker::Sync for AppRenderEvent {}
 
 impl std::fmt::Display for AppRenderEvent {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -141,8 +159,12 @@ impl Event for AppRenderEvent {
         None
     }
 
-    fn handled(&mut self) -> &mut bool {
-        &mut(self.handled)
+    fn get_handled(&self) -> bool {
+        self.handled
+    }
+
+    fn set_handled(&mut self, handled: bool) {
+        self.handled = handled;
     }
 }
 
@@ -160,37 +182,44 @@ impl AppFileDroppedEvent {
     pub fn new(message: String, paths: Vec<std::path::PathBuf>) -> AppFileDroppedEvent {
         AppFileDroppedEvent { event_type: AppFileDropped,
         category_flags: EventApplication as u32 | EventInput as u32,
-        msg: message, data: PathBufs(paths), handled: false }
+        msg: message, data: PathBufs(paths, AppFileDropped), handled: false }
     }
 }
+
+unsafe impl std::marker::Send for AppFileDroppedEvent {}
+unsafe impl std::marker::Sync for AppFileDroppedEvent {}
 
 impl std::fmt::Display for AppFileDroppedEvent {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "AppFileDroppedEvent: (event_type: {}, category_flags: {},
         msg: {}, data: {}, handled: {}",
         self.event_type, self.category_flags, self.msg, self.data, self.handled)
-    }
-}
+               }
+               }
 
-impl Event for AppFileDroppedEvent {
+               impl Event for AppFileDroppedEvent {
 
-    fn get_event_type(&self) -> EventType {
-        self.event_type
-    }
+                   fn get_event_type(&self) -> EventType {
+                       self.event_type
+                   }
 
-    fn get_category_flags(&self) -> u32 {
-        self.category_flags
-    }
+                   fn get_category_flags(&self) -> u32 {
+                       self.category_flags
+                   }
 
-    fn get_msg(&self) -> &String {
-        &(self.msg)
-    }
+                   fn get_msg(&self) -> &String {
+                       &(self.msg)
+                   }
 
-    fn get_data(&self) -> Option<& EventData> {
-        Some(& self.data)
-    }
+                   fn get_data(&self) -> Option<& EventData> {
+                       Some(& self.data)
+                   }
 
-    fn handled(&mut self) -> &mut bool {
-        &mut(self.handled)
-    }
-}
+                   fn get_handled(&self) -> bool {
+                       self.handled
+                   }
+
+                   fn set_handled(&mut self, handled: bool) {
+                       self.handled = handled;
+                   }
+               }

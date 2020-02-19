@@ -30,6 +30,8 @@ pub struct DirectXContext {
     dx_dxgi_swapchain: SwapChain4,
 }
 
+unsafe impl std::marker::Send for DirectXContext {}
+
 //TODO: Update this so it actually shows all elements. Right now just wanted to get window in
 //because it doesn't impl debug
 #[cfg(windows)]

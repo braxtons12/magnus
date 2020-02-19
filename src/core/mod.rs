@@ -6,6 +6,7 @@ pub mod graphics;
 pub mod settings;
 pub mod layers;
 pub mod object;
+pub mod signals;
 
 /**
  * Logger initialization function for debug builds

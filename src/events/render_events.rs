@@ -18,13 +18,16 @@ impl RenderFramebufferResizeEvent {
     pub fn new(message: String, width: f32, height: f32) -> RenderFramebufferResizeEvent {
         RenderFramebufferResizeEvent { event_type: RenderFramebufferResize,
         category_flags: EventApplication as u32,
-        msg: message, data: F32p(width, height), handled: false }
+        msg: message, data: F32p(width, height, RenderFramebufferResize), handled: false }
     }
 }
 
+unsafe impl std::marker::Send for RenderFramebufferResizeEvent {}
+unsafe impl std::marker::Sync for RenderFramebufferResizeEvent {}
+
 impl std::fmt::Display for RenderFramebufferResizeEvent {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "RenderFramebufferResizeEvent: (event_type: {}, 
+        write!(f, "RenderFramebufferResizeEvent: (event_type: {},
         category_flags: {}, msg: {}, data: {}, handled: {})",
         self.event_type, self.category_flags, self.msg, self.data, self.handled)
     }
@@ -48,8 +51,12 @@ impl Event for RenderFramebufferResizeEvent {
         Some(& self.data)
     }
 
-    fn handled(&mut self) -> &mut bool {
-        &mut(self.handled)
+    fn get_handled(&self) -> bool {
+        self.handled
+    }
+
+    fn set_handled(&mut self, handled: bool) {
+        self.handled = handled;
     }
 }
 
@@ -67,9 +74,12 @@ impl RenderContentScaleResizeEvent {
     pub fn new(message: String, width: f32, height: f32) -> RenderContentScaleResizeEvent {
         RenderContentScaleResizeEvent { event_type: RenderContentScaleResize,
         category_flags: EventApplication as u32,
-        msg: message, data: F32p(width, height), handled: false }
+        msg: message, data: F32p(width, height, RenderContentScaleResize), handled: false }
     }
 }
+
+unsafe impl std::marker::Send for RenderContentScaleResizeEvent {}
+unsafe impl std::marker::Sync for RenderContentScaleResizeEvent {}
 
 impl std::fmt::Display for RenderContentScaleResizeEvent {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -97,7 +107,11 @@ impl Event for RenderContentScaleResizeEvent {
         Some(& self.data)
     }
 
-    fn handled(&mut self) -> &mut bool {
-        &mut(self.handled)
+    fn get_handled(&self) -> bool {
+        self.handled
+    }
+
+    fn set_handled(&mut self, handled: bool) {
+        self.handled = handled;
     }
 }

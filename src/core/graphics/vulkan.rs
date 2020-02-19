@@ -13,6 +13,9 @@ pub struct VulkanContext {
     surface: Arc<Surface<glfw::Window>>,
 }
 
+unsafe impl std::marker::Send for VulkanContext {}
+unsafe impl std::marker::Sync for VulkanContext {}
+
 impl fmt::Debug for VulkanContext {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "VulkanContext {{ TODO: Insert debug info here }}")

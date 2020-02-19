@@ -22,9 +22,12 @@ impl WindowCloseEvent {
     }
 }
 
+unsafe impl std::marker::Send for WindowCloseEvent {}
+unsafe impl std::marker::Sync for WindowCloseEvent {}
+
 impl std::fmt::Display for WindowCloseEvent {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "WindowCloseEvent: (event_type: {}, category_flags: {}, msg: {}, handled: {})", 
+        write!(f, "WindowCloseEvent: (event_type: {}, category_flags: {}, msg: {}, handled: {})",
         self.event_type, self.category_flags, self.msg, self.handled)
     }
 }
@@ -47,8 +50,12 @@ impl Event for WindowCloseEvent {
         None
     }
 
-    fn handled(&mut self) -> &mut bool {
-        &mut(self.handled)
+    fn get_handled(&self) -> bool {
+        self.handled
+    }
+
+    fn set_handled(&mut self, handled: bool) {
+        self.handled = handled;
     }
 }
 
@@ -66,16 +73,19 @@ impl WindowResizeEvent {
     pub fn new(message: String, width: f32, height: f32) -> WindowResizeEvent {
         WindowResizeEvent { event_type: WindowResize,
         category_flags: EventApplication as u32,
-        msg: message, data: F32p(width, height), handled: false }
+        msg: message, data: F32p(width, height, WindowResize), handled: false }
     }
 }
+
+unsafe impl std::marker::Send for WindowResizeEvent {}
+unsafe impl std::marker::Sync for WindowResizeEvent {}
 
 impl std::fmt::Display for WindowResizeEvent {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "WindowResizeEvent: (event_type: {}, category_flags: {},
-        msg: {}, data: {}, handled: {})", 
+        msg: {}, data: {}, handled: {})",
         self.event_type, self.category_flags, self.msg, self.data, self.handled)
-       
+
     }
 }
 
@@ -97,8 +107,12 @@ impl Event for WindowResizeEvent {
         Some(& self.data)
     }
 
-    fn handled(&mut self) -> &mut bool {
-        &mut(self.handled)
+    fn get_handled(&self) -> bool {
+        self.handled
+    }
+
+    fn set_handled(&mut self, handled: bool) {
+        self.handled = handled;
     }
 }
 
@@ -116,13 +130,16 @@ impl WindowFocusEvent {
     pub fn new(message: String, focused: bool) -> WindowFocusEvent {
         WindowFocusEvent { event_type: WindowFocus,
         category_flags: EventApplication as u32,
-        msg: message, data: Bool(focused), handled: false }
+        msg: message, data: Bool(focused, WindowFocus), handled: false }
     }
 }
 
+unsafe impl std::marker::Send for WindowFocusEvent {}
+unsafe impl std::marker::Sync for WindowFocusEvent {}
+
 impl std::fmt::Display for WindowFocusEvent {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "WindowFocusEvent: (event_type: {}, category_flags: {}, 
+        write!(f, "WindowFocusEvent: (event_type: {}, category_flags: {},
         msg: {}, data: {}, handled: {})",
         self.event_type, self.category_flags, self.msg, self.data, self.handled)
     }
@@ -146,8 +163,12 @@ impl Event for WindowFocusEvent {
         Some(& self.data)
     }
 
-    fn handled(&mut self) -> &mut bool {
-        &mut(self.handled)
+    fn get_handled(&self) -> bool {
+        self.handled
+    }
+
+    fn set_handled(&mut self, handled: bool) {
+        self.handled = handled;
     }
 }
 
@@ -165,14 +186,17 @@ impl WindowMovedEvent {
     pub fn new(message: String, x: f32, y: f32) -> WindowMovedEvent {
         WindowMovedEvent { event_type: WindowMoved,
         category_flags: EventApplication as u32,
-        msg: message, data: F32p(x, y), handled: false }
+        msg: message, data: F32p(x, y, WindowMoved), handled: false }
     }
 }
+
+unsafe impl std::marker::Send for WindowMovedEvent {}
+unsafe impl std::marker::Sync for WindowMovedEvent {}
 
 impl std::fmt::Display for WindowMovedEvent {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "WindowMovedEvent: (event_type: {}, category_flags: {},
-        msg: {}, data: {}, handled: {})", 
+        msg: {}, data: {}, handled: {})",
         self.event_type, self.category_flags, self.msg, self.data, self.handled)
     }
 }
@@ -195,8 +219,12 @@ impl Event for WindowMovedEvent {
         Some(& self.data)
     }
 
-    fn handled(&mut self) -> &mut bool {
-        &mut(self.handled)
+    fn get_handled(&self) -> bool {
+        self.handled
+    }
+
+    fn set_handled(&mut self, handled: bool) {
+        self.handled = handled;
     }
 }
 
@@ -216,6 +244,9 @@ impl WindowRefreshEvent {
         msg: message, handled: false }
     }
 }
+
+unsafe impl std::marker::Send for WindowRefreshEvent {}
+unsafe impl std::marker::Sync for WindowRefreshEvent {}
 
 impl std::fmt::Display for WindowRefreshEvent {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -242,8 +273,12 @@ impl Event for WindowRefreshEvent {
         None
     }
 
-    fn handled(&mut self) -> &mut bool {
-        &mut(self.handled)
+    fn get_handled(&self) -> bool {
+        self.handled
+    }
+
+    fn set_handled(&mut self, handled: bool) {
+        self.handled = handled;
     }
 }
 
@@ -261,9 +296,12 @@ impl WindowIconifyEvent {
     pub fn new(message: String, iconify: bool) -> WindowIconifyEvent {
         WindowIconifyEvent { event_type: WindowIconify,
         category_flags: EventApplication as u32,
-        msg: message, data: Bool(iconify), handled: false }
+        msg: message, data: Bool(iconify, WindowIconify), handled: false }
     }
 }
+
+unsafe impl std::marker::Send for WindowIconifyEvent {}
+unsafe impl std::marker::Sync for WindowIconifyEvent {}
 
 impl std::fmt::Display for WindowIconifyEvent {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -291,8 +329,12 @@ impl Event for WindowIconifyEvent {
         Some(& self.data)
     }
 
-    fn handled(&mut self) -> &mut bool {
-        &mut(self.handled)
+    fn get_handled(&self) -> bool {
+        self.handled
+    }
+
+    fn set_handled(&mut self, handled: bool) {
+        self.handled = handled;
     }
 }
 
@@ -310,13 +352,16 @@ impl WindowMaximizeEvent {
     pub fn new(message: String, maximize: bool) -> WindowMaximizeEvent {
         WindowMaximizeEvent { event_type: WindowMaximize,
         category_flags: EventApplication as u32,
-        msg: message, data: Bool(maximize), handled: false }
+        msg: message, data: Bool(maximize, WindowMaximize), handled: false }
     }
 }
 
+unsafe impl std::marker::Send for WindowMaximizeEvent {}
+unsafe impl std::marker::Sync for WindowMaximizeEvent {}
+
 impl std::fmt::Display for WindowMaximizeEvent {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "WindowMaximizeEvent: (event_type: {}, category_flags: {}, 
+        write!(f, "WindowMaximizeEvent: (event_type: {}, category_flags: {},
         msg: {}, data: {}, handled: {})",
         self.event_type, self.category_flags, self.msg, self.data, self.handled)
     }
@@ -340,7 +385,11 @@ impl Event for WindowMaximizeEvent {
         Some(& self.data)
     }
 
-    fn handled(&mut self) -> &mut bool {
-        &mut(self.handled)
+    fn get_handled(&self) -> bool {
+        self.handled
+    }
+
+    fn set_handled(&mut self, handled: bool) {
+        self.handled = handled;
     }
 }

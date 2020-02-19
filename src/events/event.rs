@@ -61,7 +61,9 @@ pub trait Event : std::fmt::Display {
 
     fn get_data(&self) -> Option<& EventData>;
 
-    fn handled(&mut self) -> &mut bool;
+    fn get_handled(&self) -> bool;
+
+    fn set_handled(&mut self, handled: bool);
 }
 
 pub struct EventDispatcher<'a> {
@@ -89,61 +91,95 @@ impl<'a> EventDispatcher<'a> {
 #[derive(Debug)]
 #[derive(PartialEq)]
 pub enum EventData {
-    Bool(bool),
-    Boolp(bool, bool),
-    Bools(Vec<bool>),
-    U32(u32),
-    U32p(u32, u32),
-    U32s(Vec<u32>),
-    U64(u64),
-    U64p(u64, u64),
-    U64s(Vec<u64>),
-    I32(i32),
-    I32p(i32, i32),
-    I32s(Vec<i32>),
-    I64(i64),
-    I64p(i64, i64),
-    I64s(Vec<i64>),
-    F32(f32),
-    F32p(f32, f32),
-    F32s(Vec<f32>),
-    F64(f64),
-    F64p(f64, f64),
-    F64s(Vec<f64>),
-    StringD(String),
-    Strings(Vec<String>),
-    PathBufD(std::path::PathBuf),
-    PathBufs(Vec<std::path::PathBuf>),
+    Bool(bool, EventType),
+    Boolp(bool, bool, EventType),
+    Bools(Vec<bool>, EventType),
+    U32(u32, EventType),
+    U32p(u32, u32, EventType),
+    U32s(Vec<u32>, EventType),
+    U64(u64, EventType),
+    U64p(u64, u64, EventType),
+    U64s(Vec<u64>, EventType),
+    I32(i32, EventType),
+    I32p(i32, i32, EventType),
+    I32s(Vec<i32>, EventType),
+    I64(i64, EventType),
+    I64p(i64, i64, EventType),
+    I64s(Vec<i64>, EventType),
+    F32(f32, EventType),
+    F32p(f32, f32, EventType),
+    F32s(Vec<f32>, EventType),
+    F64(f64, EventType),
+    F64p(f64, f64, EventType),
+    F64s(Vec<f64>, EventType),
+    StringD(String, EventType),
+    Strings(Vec<String>, EventType),
+    PathBufD(std::path::PathBuf, EventType),
+    PathBufs(Vec<std::path::PathBuf>, EventType),
 }
+
+impl EventData {
+    pub fn event_type(&self) -> &EventType {
+        match self {
+            EventData::Bool(_, kind) => kind,
+            EventData::Boolp(_, _, kind) => kind,
+            EventData::Bools(_, kind) => kind,
+            EventData::U32(_, kind) => kind,
+            EventData::U32p(_, _, kind) => kind,
+            EventData::U32s(_, kind) => kind,
+            EventData::U64(_, kind) => kind,
+            EventData::U64p(_, _, kind) => kind,
+            EventData::U64s(_, kind) => kind,
+            EventData::I32(_, kind) => kind,
+            EventData::I32p(_, _, kind) => kind,
+            EventData::I32s(_, kind) => kind,
+            EventData::I64(_, kind) => kind,
+            EventData::I64p(_, _, kind) => kind,
+            EventData::I64s(_, kind) => kind,
+            EventData::F32(_, kind) => kind,
+            EventData::F32p(_, _, kind) => kind,
+            EventData::F32s(_, kind) => kind,
+            EventData::F64(_, kind) => kind,
+            EventData::F64p(_, _, kind) => kind,
+            EventData::F64s(_, kind) => kind,
+            EventData::StringD(_, kind) => kind,
+            EventData::Strings(_, kind) => kind,
+            EventData::PathBufD(_, kind) => kind,
+            EventData::PathBufs(_, kind) => kind
+        }
+    }
+}
+
+unsafe impl std::marker::Send for EventData {}
 
 impl std::fmt::Display for EventData {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            EventData::Bool(x) => write!(f, "EventData::Bool: {}", x),
-            EventData::Boolp(x, y) => write!(f, "EventData::Boolp: {}, {}", x, y),
-            EventData::Bools(x) => write!(f, "EventData::Bools: size: {}", x.len()),
-            EventData::U32(x) => write!(f, "EventData::U32: {}", x),
-            EventData::U32p(x, y) => write!(f, "EventData::U32p: {}, {}", x, y),
-            EventData::U32s(x) => write!(f, "EventData::U32s: size: {}", x.len()),
-            EventData::U64(x) => write!(f, "EventData::U64: {}", x),
-            EventData::U64p(x, y) => write!(f, "EventData::U64p: {}, {}", x, y),
-            EventData::U64s(x) => write!(f, "EventData::U64s: size: {}", x.len()),
-            EventData::I32(x) => write!(f, "EventData::I32: {}", x),
-            EventData::I32p(x, y) => write!(f, "EventData::I32p: {}, {}", x, y),
-            EventData::I32s(x) => write!(f, "EventData::I32s: size: {}", x.len()),
-            EventData::I64(x) => write!(f, "EventData::I64: {}", x),
-            EventData::I64p(x, y) => write!(f, "EventData::I64p: {}, {}", x, y),
-            EventData::I64s(x) => write!(f, "EventData::I64s: size: {}", x.len()),
-            EventData::F32(x) => write!(f, "EventData::F32: {}", x),
-            EventData::F32p(x, y) => write!(f, "EventData::F32p: {}, {}", x, y),
-            EventData::F32s(x) => write!(f, "EventData::F32s: size: {}", x.len()),
-            EventData::F64(x) => write!(f, "EventData::F64: {}", x),
-            EventData::F64p(x, y) => write!(f, "EventData::F64p: {}, {}", x, y),
-            EventData::F64s(x) => write!(f, "EventData::F64s: size: {}", x.len()),
-            EventData::StringD(x) => write!(f, "EventData::StringD: {}", x),
-            EventData::Strings(x) => write!(f, "EventData::Strings: size: {}", x.len()),
-            EventData::PathBufD(x) => write!(f, "EventData::PathBufD: to_str: {}", x.to_str().unwrap()),
-            EventData::PathBufs(x) => write!(f, "EventData::PathBufs: size: {}", x.len())
+            EventData::Bool(x, kind) => write!(f, "EventData::Bool: {}, type: {}", x, kind),
+            EventData::Boolp(x, y, kind) => write!(f, "EventData::Boolp: {}, {}, type: {}", x, y, kind),
+            EventData::Bools(x, kind) => write!(f, "EventData::Bools: size: {}, type: {}", x.len(), kind),
+            EventData::U32(x, kind) => write!(f, "EventData::U32: {}, type: {}", x, kind),
+            EventData::U32p(x, y, kind) => write!(f, "EventData::U32p: {}, {}, type: {}", x, y, kind),
+            EventData::U32s(x, kind) => write!(f, "EventData::U32s: size: {}, type: {}", x.len(), kind),
+            EventData::U64(x, kind) => write!(f, "EventData::U64: {}, type: {}", x, kind),
+            EventData::U64p(x, y, kind) => write!(f, "EventData::U64p: {}, {}, type: {}", x, y, kind),
+            EventData::U64s(x, kind) => write!(f, "EventData::U64s: size: {}, type: {}", x.len(), kind),
+            EventData::I32(x, kind) => write!(f, "EventData::I32: {}, type: {}", x, kind),
+            EventData::I32p(x, y, kind) => write!(f, "EventData::I32p: {}, {}, type: {}", x, y, kind),
+            EventData::I32s(x, kind) => write!(f, "EventData::I32s: size: {}, type: {}", x.len(), kind),
+            EventData::I64(x, kind) => write!(f, "EventData::I64: {}, type: {}", x, kind),
+            EventData::I64p(x, y, kind) => write!(f, "EventData::I64p: {}, {}, type: {}", x, y, kind),
+            EventData::I64s(x, kind) => write!(f, "EventData::I64s: size: {}, type: {}", x.len(), kind),
+            EventData::F32(x, kind) => write!(f, "EventData::F32: {}, type: {}", x, kind),
+            EventData::F32p(x, y, kind) => write!(f, "EventData::F32p: {}, {}, type: {}", x, y, kind),
+            EventData::F32s(x, kind) => write!(f, "EventData::F32s: size: {}, type: {}", x.len(), kind),
+            EventData::F64(x, kind) => write!(f, "EventData::F64: {}, type: {}", x, kind),
+            EventData::F64p(x, y, kind) => write!(f, "EventData::F64p: {}, {}, type: {}", x, y, kind),
+            EventData::F64s(x, kind) => write!(f, "EventData::F64s: size: {}, type: {}", x.len(), kind),
+            EventData::StringD(x, kind) => write!(f, "EventData::StringD: {}, type: {}", x, kind),
+            EventData::Strings(x, kind) => write!(f, "EventData::Strings: size: {}, type: {}", x.len(), kind),
+            EventData::PathBufD(x, kind) => write!(f, "EventData::PathBufD: to_str: {}, type: {}", x.to_str().unwrap(), kind),
+            EventData::PathBufs(x, kind) => write!(f, "EventData::PathBufs: size: {}, type: {}", x.len(), kind)
         }
     }
 }

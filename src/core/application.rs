@@ -74,11 +74,12 @@ impl MagnusApplication<OpenGLContext> {
                     std::thread::sleep(std::time::Duration::from_millis(10));
                     match win.write() {
                         Ok(mut x) => if x.on_update() {
-                            debug!("App should close!");
+                            warn!("App should close!");
                             close = true;
                         },
                         _ => {
-                            debug!("Window RWLock is Poisoned (Update Thread)");
+                            error!("Window RWLock is Poisoned (Update Thread)");
+                            error!("Signalling to shutdown");
                             close = true;
                         }
                     }
@@ -87,7 +88,7 @@ impl MagnusApplication<OpenGLContext> {
                         //shutting down this thread can poison the shared RWLocks
                         //so need a backup way to tell main to shutdown other than just
                         //the signal emitted to the event handler
-                        debug!("Update thread shutting down");
+                        warn!("Update thread shutting down");
                         closed_backup.store(true, Ordering::SeqCst);
                         break 'update;
                     }
@@ -108,7 +109,7 @@ impl MagnusApplication<OpenGLContext> {
         'main: while !close {
 
             if close_backup.load(Ordering::SeqCst) {
-                debug!("Main/Render thread shutting down via backup signal");
+                warn!("Main/Render thread shutting down via backup signal");
                 break 'main;
             }
 
@@ -120,7 +121,7 @@ impl MagnusApplication<OpenGLContext> {
             }
 
             if close {
-                debug!("Main/Render thread shutting down normally");
+                warn!("Main/Render thread shutting down normally");
                 break 'main;
             }
 
@@ -132,9 +133,9 @@ impl MagnusApplication<OpenGLContext> {
             match window.write() {
                 Ok(mut x) => x.get_context().swap_buffers(),
                 _ => {
-                    debug!("Window RWLock is Poisoned (Render Thread)");
-                    debug!("Assuming close signal has been given");
-                    debug!("Shutting down");
+                    error!("Window RWLock is Poisoned (Render Thread)");
+                    error!("Assuming close signal has been given");
+                    error!("Shutting down");
                     return;
                 }
             }

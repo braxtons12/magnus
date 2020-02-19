@@ -144,7 +144,7 @@ impl Window<OpenGLContext> {
         self.context.poll_events();
 
         for (_, event) in glfw::flush_messages(&self.event_receiver) {
-            println!("{:?}", event);
+            debug!("{:?}", event);
             match event {
                 glfw::WindowEvent::Key(_, id, glfw::Action::Press, mods) => {
                     let x = KeyPressedEvent::new(format!("Key {} pressed with {} mods", id, mods.bits()), id, mods.bits());
